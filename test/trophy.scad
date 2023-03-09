@@ -27,5 +27,5 @@ difference()
 
 // Add the model on top of the base
 translate([0, 0, Base_Height])
-    prism_resize([Base_Size, Base_Size])
+    prism_resize([Base_Size, Base_Size], 3d=true)
     import(Model);
