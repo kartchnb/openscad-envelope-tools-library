@@ -71,23 +71,38 @@ module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut
         else children();
     }
 
+    module expand(expansion)
+    {
+        // Handle positive expansion
+        if (expansion > 0)
+            for(x_offset = [-expansion, expansion])
+            translate([x_offset, 0])
+            children(0);
+
+        // Handle negative expansion (shrinking of the line)
+        else if (expansion < 0)
+            intersection_for(x_offset = [expansion, -expansion])
+            translate([x_offset, 0])
+            children(0);
+    }
+
     // Iterate over each possible axis
     for (params = [[axes.x, [0, 0, 0]], [axes.y, [0, 0, 90]], [axes.z, [0, 90, 0]]])
     {
         axis_requested = params[0];
         rot = params[1];
 
+        // Create the projection against the requested axis
         if (!is_undef(axis_requested) && axis_requested > 0)
-            rotate(-rot)
-            solidify(solid)
-            for(x_offset = [-expansion, expansion])
-            translate([x_offset, 0])
-            projection()
-            rotate([270, 0, 0])
-            linear_extrude(thickness)
-            any_projection(cut=cut, 3d=3d) // Create a projection whether the children are 2D or 3d
-            rotate(rot)
-            children();
+            rotate(-rot)                    // Rotate back into position
+            solidify(solid)                 // Solidy the projection line, if requested
+            expand(expansion)               // Expand the projection line, if requested
+            projection()                    // Generate a 2d projection
+            rotate([270, 0, 0])             // Rotate the extrusion perpendicular with the horizontal plane
+            linear_extrude(thickness)       // Extrude the projection to make it 3d
+            any_projection(cut=cut, 3d=3d)  // Create a projection whether the children are 2D or 3d
+            rotate(rot)                     // Rotate the child geometry to lay its requested axis along the x-axis
+            children();                     // Generate the child geometry
     }
 }
 
