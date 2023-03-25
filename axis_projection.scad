@@ -74,13 +74,13 @@ module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut
     module expand(expansion)
     {
         // Handle positive expansion
-        if (expansion > 0)
+        if (expansion >= 0)
             for(x_offset = [-expansion, expansion])
             translate([x_offset, 0])
             children(0);
 
         // Handle negative expansion (shrinking of the line)
-        else if (expansion < 0)
+        else
             intersection_for(x_offset = [expansion, -expansion])
             translate([x_offset, 0])
             children(0);
@@ -165,7 +165,7 @@ module _envelope_tools_generate_col(model_file, cell_size, 3d)
 
 3d_Model_File = "test/test.stl";
 2d_Model_File = "test/test.svg";
-Cell_Size = [75, 75];
+Cell_Size = [100, 100];
 
 _envelope_tools_grid_layout(Cell_Size, labels=["original", "any_projection()", "linear_extrusion(10) any_projection()", "axis_projection([1, 1, 1])", "overlapped_axis_projection([1, 1, 1])"])
 {
