@@ -58,6 +58,6 @@ To use, simply install the library into your OpenSCAD library folder.
 
 Note that this library abuses OpenSCAD a bit to achieve this, so you may notice some visual glitches when previewing models in OpenSCAD.  So far, everything I've designed with this library has worked just fine when rendered and printed.
 
-Also note that the library should be added to your project with the use<> command rather than include<>, or you will get unwanted test renders in your model.  Alternatively, you can open each file in the library in OpenSCAD to see a sample of what the functions in that file do.
+Also note that the library should be added to your project with the use<> command rather than include<>, or you will get unwanted test renders in your model.  This means that you can open each file in the library in OpenSCAD to see a sample of what the functions in that file do.
 
 I'm still working on documenting this library.  Right now, it's a bit difficult to understand and use.  Hopefully, I'll find time to fix that.
