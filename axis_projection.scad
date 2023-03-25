@@ -22,7 +22,7 @@ include<common.scad>
 //      (defaults to false)
 module any_projection(cut=false, 3d=false)
 {
-    // Use the standard projection for 3d geometry
+    // The standard projection command works for 3d geometry
     projection(cut=cut)
         children();
 
