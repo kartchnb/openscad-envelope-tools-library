@@ -3,7 +3,7 @@ use<envelope_2d.scad>
 
 
 
-module prism_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
+module prism_envelope(aspect=undef, expansion=0, cut=false, 3d=true, max_envelope=_envelope_tools_default_max_envelope)
 {
     intersection()
     {
@@ -21,7 +21,7 @@ module prism_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envelo
 
 
 
-module prism_negative(aspect=undef, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
+module prism_negative(aspect=undef, expansion=0, cut=false, 3d=true, max_envelope=_envelope_tools_default_max_envelope)
 {
     difference()
     {
@@ -33,7 +33,7 @@ module prism_negative(aspect=undef, expansion=0, cut=false, 3d=false, max_envelo
 
 
 
-module cylinder_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
+module cylinder_envelope(aspect=undef, expansion=0, cut=false, 3d=true, max_envelope=_envelope_tools_default_max_envelope)
 {
     module max_vertical_envelope(expansion, cut, 3d, max_envelope)
     {
@@ -63,7 +63,7 @@ module cylinder_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_env
 
 
 
-module cylinder_negative(aspect=undef, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
+module cylinder_negative(aspect=undef, expansion=0, cut=false, 3d=true, max_envelope=_envelope_tools_default_max_envelope)
 {
     difference()
     {

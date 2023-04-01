@@ -5,7 +5,7 @@ use<envelope_3d.scad>
 
 
 
-module prism_resize(size=1, expansion=0, cut=false, 3d=false)
+module prism_resize(size=1, expansion=0, cut=false, 3d=true)
 {
     iota = 0.001;
 
