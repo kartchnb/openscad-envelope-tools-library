@@ -1,5 +1,5 @@
-include<axis_projection.scad>
-include<envelope_2d.scad>
-include<envelope_3d.scad>
-include<resize_2d.scad>
-include<resize_3d.scad>
+include<modules/axis_projection.scad>
+include<modules/envelope_2d.scad>
+include<modules/envelope_3d.scad>
+include<modules/resize_2d.scad>
+include<modules/resize_3d.scad>
