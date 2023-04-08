@@ -51,7 +51,7 @@ echo("EnvelopeTools: If this message is showing up in your model, you need to <u
 
 include<../test/_test_grid.scad>
 
-2d_Model_File = "test/test.svg";
+2d_Model_File = "../test/test.svg";
 Cell_Size = [75, 75];
 
 _envelope_tools_grid_layout(Cell_Size, labels=["original", "square_resize([50, 50])", "square_resize([25, 50])", "square_resize([50, 25])", "square_resize([10, 50])", "circle_resize(d=50)"])

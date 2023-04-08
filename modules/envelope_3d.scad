@@ -81,7 +81,7 @@ echo("EnvelopeTools: If this message is showing up in your model, you need to <u
 
 include<../test/_test_grid.scad>
 
-3d_Model_File = "test/test.stl";
+3d_Model_File = "../test/test.stl";
 Cell_Size = [125, 125];
 
 _envelope_tools_grid_layout(Cell_Size, labels=["original", "prism_envelope()", "prism_negative()", "cylinder_envelope()", "cylinder_negative()"], extrusion=1)

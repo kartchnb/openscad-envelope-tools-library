@@ -163,8 +163,8 @@ module _envelope_tools_generate_col(model_file, cell_size, 3d)
     }
 }
 
-3d_Model_File = "test/test.stl";
-2d_Model_File = "test/test.svg";
+3d_Model_File = "../test/test.stl";
+2d_Model_File = "../test/test.svg";
 Cell_Size = [100, 100];
 
 _envelope_tools_grid_layout(Cell_Size, labels=["original", "any_projection()", "linear_extrusion(10) any_projection()", "axis_projection([1, 1, 1])", "overlapped_axis_projection([1, 1, 1])"])
