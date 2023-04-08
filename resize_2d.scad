@@ -14,11 +14,11 @@ module square_resize(size=1, expansion=0, cut=false, 3d=false, max_envelope=_env
 
     difference()
     {
-        resize(size)
+        resize([width, height])
             square_envelope(aspect=[1, 1], 3d=3d, max_envelope=max_envelope)
             scale([x_ratio, y_ratio])
             children();
-        resize(size)
+        resize([width, height])
             square_negative(aspect=[1, 1], 3d=3d, max_envelope=max_envelope)
             scale([x_ratio, y_ratio])
             children();
@@ -31,14 +31,13 @@ module circle_resize(r=1, d=undef, expansion=0, cut=false, 3d=false)
 {
     width = is_undef(d) ? r*2 : d;
     height = width;
-    size = [width, height];
 
     difference()
     {
-        resize(size)
+        resize([width, height])
             circle_envelope(expansion=expansion, cut=cut, 3d=3d)
             children();
-        resize(size)
+        resize([width, height])
             circle_negative(expansion=expansion, cut=cut, 3d=3d)
             children();
     }
