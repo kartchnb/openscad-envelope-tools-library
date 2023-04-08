@@ -149,7 +149,7 @@ module overlapped_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, soli
 // Test code
 echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
 
-include<test/_test_grid.scad>
+include<../test/_test_grid.scad>
 
 module _envelope_tools_generate_col(model_file, cell_size, 3d)
 {

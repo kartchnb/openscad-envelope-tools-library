@@ -37,7 +37,7 @@ module prism_resize(size=1, expansion=0, cut=false, 3d=true)
 // Test code
 echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
 
-include<test/_test_grid.scad>
+include<../test/_test_grid.scad>
 
 3d_Model_File = "test/test.stl";
 Cell_Size = [75, 75];

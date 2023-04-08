@@ -239,7 +239,7 @@ module circle_frame(frame=1, expansion=0, cut=false, 3d=false)
 // Test code
 echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
 
-include<test/_test_grid.scad>
+include<../test/_test_grid.scad>
 
 2d_Model_File = "test/test.svg";
 Cell_Size = [125, 125];
