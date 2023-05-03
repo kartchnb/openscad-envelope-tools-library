@@ -36,6 +36,7 @@ module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
 
     module generate_axis_projection(aspect, expansion, cut, 3d)
     {
+
         // If no aspect is being enforced (aspect is undefined), 
         // return the axis projection as-is
         if (is_undef(aspect)) axis_projection([1, 0, 0], expansion=expansion, cut=cut, 3d=3d) children();
@@ -242,9 +243,9 @@ echo("EnvelopeTools: If this message is showing up in your model, you need to <u
 include<../test/_test_grid.scad>
 
 2d_Model_File = "../test/test.svg";
-Cell_Size = [125, 125];
+Cell_Size = [400, 400];
 
-_envelope_tools_grid_layout(Cell_Size, labels=["original", "square_envelope()", "square_envelope([1, 1])", "square_envelope([2, 1])", "square_envelope([1, 2])", "square_negative()", "square_frame()", "circle_envelope()", "circle_negative()", "circle_frame()"])
+_envelope_tools_grid_layout(Cell_Size, labels=["original", "square_envelope()", "square_envelope(aspect=[1, 1])", "square_envelope(aspect=[2, 1])", "square_envelope(aspect=[1, 2])", "square_envelope(expansion=[0, 50])", "square_envelope(expansion=[50, 0])", "square_negative()", "square_frame()", "circle_envelope()", "circle_envelope(expansion=50)", "circle_negative()", "circle_frame()"])
 {
     _envelope_tools_row_layout(Cell_Size, 2d_Model_File)
     {
@@ -253,9 +254,12 @@ _envelope_tools_grid_layout(Cell_Size, labels=["original", "square_envelope()", 
         group() { square_envelope(aspect=[1, 1]) import(2d_Model_File); %import(2d_Model_File); }
         group() { square_envelope(aspect=[2, 1]) import(2d_Model_File); %import(2d_Model_File); }
         group() { square_envelope(aspect=[1, 2]) import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_envelope(expansion=[0, 50]) import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_envelope(expansion=[50, 0]) import(2d_Model_File); %import(2d_Model_File); }
         group() { square_negative() import (2d_Model_File); %import(2d_Model_File); }
         group() { square_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
         group() { circle_envelope() import(2d_Model_File); %import(2d_Model_File); }
+        group() { circle_envelope(expansion=50) import(2d_Model_File); %import(2d_Model_File); }
         group() { circle_negative() import (2d_Model_File); %import(2d_Model_File); }
         group() { circle_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
     }

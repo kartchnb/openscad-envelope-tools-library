@@ -5,16 +5,20 @@ use<envelope_2d.scad>
 
 module prism_envelope(aspect=undef, expansion=0, cut=false, 3d=true, max_envelope=_envelope_tools_default_max_envelope)
 {
+    x_expansion = is_list(expansion) ? expansion.x : expansion;
+    y_expansion = is_list(expansion) ? expansion.y : expansion;
+    z_expansion = is_list(expansion) ? expansion.z : expansion;
+
     intersection()
     {
         linear_extrude(max_envelope, center=true)
-        square_envelope(aspect=aspect, expansion=expansion, cut=cut, 3d=3d, max_envelope=max_envelope)
+            square_envelope(aspect=aspect, expansion=[x_expansion, y_expansion], cut=cut, 3d=3d, max_envelope=max_envelope)
             children();
 
         rotate([-90, 0, 0])
-        linear_extrude(max_envelope, center=true)
-        square_envelope(expansion=expansion, cut=cut, 3d=3d, max_envelope=max_envelope)
-        rotate([90, 0, 0])
+            linear_extrude(max_envelope, center=true)
+            square_envelope(expansion=[x_expansion, z_expansion], cut=cut, 3d=3d, max_envelope=max_envelope)
+            rotate([90, 0, 0])
             children();
     }
 }
