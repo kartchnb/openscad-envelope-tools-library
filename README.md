@@ -3,7 +3,7 @@ One of the great strengths of OpenSCAD is the ability to develop parametric mode
 
 One of the greatest weaknesses of OpenSCAD is that it does not provide a way to query the dimensions of geometry.  This means, for instance, that allowing the user to enter arbitrary text to be incorporated into the model can be difficult since there is no way to tell how wide the text will be and to ensure it can be scaled correctly.  The designer must determine whether to fit the text to the width of the space, the height of the space, or provide an additional option for the user to select which.
 
-Well, I wasn't satisifed, so I wrote this library to solve this weakness.  It allows 2-dimensional geometry to be scaled to fit a given space without distortion.  If it's too wide for the space, it will be scaled to fit the width, otherwise it will fit the height.
+Well, I wasn't satisifed, so I wrote this library to work around this weakness in some situations.  It allows 2-dimensional geometry to be scaled to fit a given space without distortion.  If it's too wide for the space, it will be scaled to fit the width, otherwise it will fit the height.
 
 For example, this code was used to generate the following image (the red square shows the area being scaled to).  Note that the string is scaled to fit the width of the square:
 
@@ -58,6 +58,6 @@ To use, simply install the library into your OpenSCAD library folder.
 
 Note that this library abuses OpenSCAD a bit to achieve this, so you may notice some visual glitches when previewing models in OpenSCAD.  So far, everything I've designed with this library has worked just fine when rendered and printed.
 
-Also note that the library should be added to your project with the use<> command rather than include<>, or you will get unwanted test renders in your model.  This means that you can open each file in the library in OpenSCAD to see a sample of what the functions in that file do.
+Also note that the library should be added to your project with the use<> command rather than include<>, or you will get unwanted test renders in your model.  This is because each file contains test code.  The upshot is that you can open each library file in OpenSCAD to see a sample of what the functions in that file do.
 
 I'm still working on documenting this library.  Right now, it's a bit difficult to understand and use.  Hopefully, I'll find time to fix that.
