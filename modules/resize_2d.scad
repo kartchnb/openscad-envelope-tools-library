@@ -15,11 +15,11 @@ module square_resize(size=1, expansion=0, cut=false, 3d=false, max_envelope=_env
     difference()
     {
         resize([width, height])
-            square_envelope(aspect=[1, 1], 3d=3d, max_envelope=max_envelope)
+            square_envelope(aspect=[1, 1], expansion=expansion, cut=cut, 3d=3d, max_envelope=max_envelope)
             scale([x_ratio, y_ratio])
             children();
         resize([width, height])
-            square_negative(aspect=[1, 1], 3d=3d, max_envelope=max_envelope)
+            square_negative(aspect=[1, 1], expansion=expansion, cut=cut, 3d=3d, max_envelope=max_envelope)
             scale([x_ratio, y_ratio])
             children();
     }
@@ -54,7 +54,7 @@ include<../test/_test_grid.scad>
 2d_Model_File = "../test/test.svg";
 Cell_Size = [75, 75];
 
-_envelope_tools_grid_layout(Cell_Size, labels=["original", "square_resize([50, 50])", "square_resize([25, 50])", "square_resize([50, 25])", "square_resize([10, 50])", "circle_resize(d=50)"])
+_envelope_tools_grid_layout(Cell_Size, labels=["original", "square_resize([50, 50])", "square_resize([25, 50])", "square_resize([50, 25])", "square_resize([10, 50])", "circle_resize(d=50)", "square_resize([10, 50], expansion=20)"])
 {
     _envelope_tools_row_layout(Cell_Size, 2d_Model_File)
     {
@@ -64,5 +64,6 @@ _envelope_tools_grid_layout(Cell_Size, labels=["original", "square_resize([50, 5
         group() {square_resize([50, 25]) import(2d_Model_File); %square([50, 25], center=true);}
         group() {square_resize([10, 50]) import(2d_Model_File); %square([10, 50], center=true);}
         group() {circle_resize(d=50) import(2d_Model_File); %circle(d=50);}
+        group() {square_resize([50, 50], expansion=20) import(2d_Model_File); %square([50, 50], center=true);}
     }
 }
