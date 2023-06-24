@@ -36,7 +36,6 @@ module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
 
     module generate_axis_projection(aspect, expansion, cut, 3d)
     {
-
         // If no aspect is being enforced (aspect is undefined), 
         // return the axis projection as-is
         if (is_undef(aspect)) axis_projection([1, 0, 0], expansion=expansion, cut=cut, 3d=3d) children();
@@ -174,7 +173,8 @@ module circle_envelope(expansion=0, cut=false, 3d=false)
     hull()
     for (z_rot = [0: $fa: 360 - $fa])
     rotate([0, 0, z_rot])
-    translate([expansion, 0])
+    for (x_offset = [-expansion, expansion])
+    translate([x_offset, 0])
     any_projection(cut=cut, 3d=3d)
         children();
 }
