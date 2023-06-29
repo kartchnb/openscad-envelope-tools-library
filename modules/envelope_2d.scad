@@ -26,16 +26,10 @@ use<axis_projection.scad>
 module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
 {
     // Calculate the aspect ratio
-    x_aspect = is_undef(aspect)
-        ? undef 
-        : is_list(aspect)
-            ? aspect.x
-            : aspect;
-    y_aspect = is_undef(aspect)
-        ? undef 
-        : is_list(aspect)
-            ? aspect.y
-            : aspect;
+    x_aspect = is_undef(aspect) ? undef 
+        : is_list(aspect) ? aspect.x : aspect;
+    y_aspect = is_undef(aspect) ? undef 
+        : is_list(aspect) ? aspect.y : aspect;
     min_dimension = is_undef(aspect) ? undef : min(x_aspect, y_aspect);
     x_ratio = is_undef(aspect) ? undef : x_aspect / min_dimension;
     y_ratio = is_undef(aspect) ? undef : y_aspect / min_dimension;
