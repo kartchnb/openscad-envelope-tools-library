@@ -15,14 +15,14 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_
 {
     _envelope_tools_row_layout([Cell_Size, Cell_Size], 2d_Model_File)
     {
-        //import(2d_Model_File);
-        //group() {square_resize([50, 50]) import(2d_Model_File); %square([50, 50], center=true);}
+        import(2d_Model_File);
+        group() {square_resize([50, 50]) import(2d_Model_File); %square([50, 50], center=true);}
         group() {square_resize([25, 50]) import(2d_Model_File); %square([25, 50], center=true);}
-        //group() {square_resize([50, 25]) import(2d_Model_File); %square([50, 25], center=true);}
-        //group() {square_resize([10, 50]) import(2d_Model_File); %square([10, 50], center=true);}
+        group() {square_resize([50, 25]) import(2d_Model_File); %square([50, 25], center=true);}
+        group() {square_resize([10, 50]) import(2d_Model_File); %square([10, 50], center=true);}
         group() {square_resize([25, 50], maximize=true) import(2d_Model_File); %square([25, 50], center=true);}
-        //group() {circle_resize(d=50) import(2d_Model_File); %circle(d=50);}
-        //group() {square_resize([50, 50], expansion=20) import(2d_Model_File); %square([50, 50], center=true);}
+        group() {circle_resize(d=50) import(2d_Model_File); %circle(d=50);}
+        group() {square_resize([50, 50], expansion=20) import(2d_Model_File); %square([50, 50], center=true);}
     }
 }
 
