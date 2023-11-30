@@ -1,3 +1,33 @@
+/* [Test Parameters] */
+// The test cell size (width and height)
+Cell_Size = 75;
+// The model file to use
+2d_Model_File = "../test/test.svg";
+// The render quality
+Render_Quality = 32;
+
+// Test code
+echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
+
+include<../test/_test_grid.scad>
+
+_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_resize([50, 50])", "square_resize([25, 50])", "square_resize([50, 25])", "square_resize([10, 50])", "square_resize([25, 50], maximize=true)", "circle_resize(d=50)", "square_resize([10, 50], expansion=20)"])
+{
+    _envelope_tools_row_layout([Cell_Size, Cell_Size], 2d_Model_File)
+    {
+        //import(2d_Model_File);
+        //group() {square_resize([50, 50]) import(2d_Model_File); %square([50, 50], center=true);}
+        group() {square_resize([25, 50]) import(2d_Model_File); %square([25, 50], center=true);}
+        //group() {square_resize([50, 25]) import(2d_Model_File); %square([50, 25], center=true);}
+        //group() {square_resize([10, 50]) import(2d_Model_File); %square([10, 50], center=true);}
+        group() {square_resize([25, 50], maximize=true) import(2d_Model_File); %square([25, 50], center=true);}
+        //group() {circle_resize(d=50) import(2d_Model_File); %circle(d=50);}
+        //group() {square_resize([50, 50], expansion=20) import(2d_Model_File); %square([50, 50], center=true);}
+    }
+}
+
+
+
 include<common.scad>
 use<envelope_2d.scad>
 
@@ -40,30 +70,5 @@ module circle_resize(r=1, d=undef, expansion=0, cut=false, 3d=false)
         resize([width, height])
             circle_negative(expansion=expansion, cut=cut, 3d=3d)
             children();
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-// Test code
-echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
-
-include<../test/_test_grid.scad>
-
-2d_Model_File = "../test/test.svg";
-Cell_Size = [75, 75];
-
-_envelope_tools_grid_layout(Cell_Size, labels=["original", "square_resize([50, 50])", "square_resize([25, 50])", "square_resize([50, 25])", "square_resize([10, 50])", "circle_resize(d=50)", "square_resize([10, 50], expansion=20)"])
-{
-    _envelope_tools_row_layout(Cell_Size, 2d_Model_File)
-    {
-        import(2d_Model_File);
-        group() {square_resize([50, 50]) import(2d_Model_File); %square([50, 50], center=true);}
-        group() {square_resize([25, 50]) import(2d_Model_File); %square([25, 50], center=true);}
-        group() {square_resize([50, 25]) import(2d_Model_File); %square([50, 25], center=true);}
-        group() {square_resize([10, 50]) import(2d_Model_File); %square([10, 50], center=true);}
-        group() {circle_resize(d=50) import(2d_Model_File); %circle(d=50);}
-        group() {square_resize([50, 50], expansion=20) import(2d_Model_File); %square([50, 50], center=true);}
     }
 }
