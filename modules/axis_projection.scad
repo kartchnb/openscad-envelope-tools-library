@@ -1,3 +1,39 @@
+/* [Test Parameters] */
+// The test cell size (width and height)
+Cell_Size = 300;
+// The 2D model file to use
+2d_Model_File = "../test/test.svg";
+// The 3D model file to use
+3d_Model_File = "../test/test.stl";
+// The render quality
+Render_Quality = 32;
+
+// Test code
+echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
+
+include<../test/_test_grid.scad>
+
+module _envelope_tools_generate_col(model_file, cell_size, 3d)
+{
+    _envelope_tools_row_layout(cell_size, model_file)
+    {
+        import(model_file);
+        group() { any_projection(3d=3d) import(model_file); %import(model_file); }
+        group() { linear_extrude(20) any_projection(3d=3d) import(model_file); %import(model_file); }
+        group() { axis_projection([1, 1, 1], 3d=3d) import(model_file); %import(model_file); }
+        group() { maximum_axis_projection([1, 1, 1], 3d=3d) import(model_file); %import(model_file); }
+        group() { minimum_axis_projection([1, 1, 0], 3d=3d) import(model_file); %import(model_file); }
+    }
+}
+
+_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "any_projection()", "linear_extrusion(10) any_projection()", "axis_projection([1, 1, 1])", "maximum_axis_projection([1, 1, 1])", "minimum_axis_projection([1, 1, 0])"])
+{
+    _envelope_tools_generate_col(2d_Model_File, [Cell_Size, Cell_Size], 3d=false);
+    _envelope_tools_generate_col(3d_Model_File, [Cell_Size, Cell_Size], 3d=true);
+}
+
+
+
 include<common.scad>
 
 
@@ -108,10 +144,8 @@ module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut
 
 
 
-// Generates overlapping projection lines of the specified axes.
-// All of the requested projection lines are drawn along the x axis.
-// This is used specifically to create a single projection line that is the 
-// length of the maximum dimension of the children along the requested axes.
+// Generates a line the length of the longest dimension of the child object.
+// The line is drawn along the x axis.
 //
 // parameters:
 //  axes - the axes to generate for in the order [X, Y, Z]
@@ -129,7 +163,7 @@ module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut
 //      (defaults to false)
 //  3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
-module overlapped_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
+module maximum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
 {
     // Iterate over each possible axis
     for (params = [[axes.x, [0, 0, 0]], [axes.y, [0, 0, 90]], [axes.z, [0, 90, 0]]])
@@ -145,30 +179,44 @@ module overlapped_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, soli
 
 
 
-//----------------------------------------------------------------------------
-// Test code
-echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
-
-include<../test/_test_grid.scad>
-
-module _envelope_tools_generate_col(model_file, cell_size, 3d)
+// Retained for backwards compatibility
+module overlapped_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
 {
-    _envelope_tools_row_layout(cell_size, model_file)
-    {
-        import(model_file);
-        group() { any_projection(3d=3d) import(model_file); %import(model_file); }
-        group() { linear_extrude(20) any_projection(3d=3d) import(model_file); %import(model_file); }
-        group() { axis_projection([1, 1, 1], 3d=3d) import(model_file); %import(model_file); }
-        group() { overlapped_axis_projection([1, 1, 1], 3d=3d) import(model_file); %import(model_file); }
-    }
+    echo("WARNING: This module is depricated and should be replaced with maximum_axis_projection")
+    maximum_axis_projection(axes=axes, thickness=thickness, expansion=expansion, solid=solid, cut=cut, 3d=3d);
 }
 
-3d_Model_File = "../test/test.stl";
-2d_Model_File = "../test/test.svg";
-Cell_Size = [100, 100];
 
-_envelope_tools_grid_layout(Cell_Size, labels=["original", "any_projection()", "linear_extrusion(10) any_projection()", "axis_projection([1, 1, 1])", "overlapped_axis_projection([1, 1, 1])"])
+
+// Generates a line the length of the shortest dimension of the child object.
+// The line is drawn along the x axis.
+//
+// parameters:
+//  axes - the axes to generate for in the order [X, Y, Z]
+//      Setting any axis value to 1 will cause the axis projection line to be 
+//      generated for that axis
+//      (defaults to just the x-axis)
+//  thickness - the thickness of the line along the plane
+//      (defaults to 1)
+//  expansion - the distance to expand the line beyond the bounds of the child geometry
+//      (defaults to 0)
+//  solid - When set to true, the generated line will be solid
+//      otherwise, the line may have gaps depending on the child geometry (especially text)
+//      (defaults to true)
+//  cut - the same as the "cut" parameter in the standard projection module
+//      (defaults to false)
+//  3d - Used to manually specify that the children of this module are 3-dimensional
+//      (defaults to false)
+module minimum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
 {
-    _envelope_tools_generate_col(2d_Model_File, Cell_Size, 3d=false);
-    _envelope_tools_generate_col(3d_Model_File, Cell_Size, 3d=true);
+    // Iterate over each possible axis
+    intersection_for (params = [[axes.x, [0, 0, 0]], [axes.y, [0, 0, 90]], [axes.z, [0, 90, 0]]])
+    {
+        axis_requested = params[0];
+        rot = params[1];
+
+        // Generate the projection line of the requested axis and align it to the x-axis
+        if (!is_undef(axis_requested) && axis_requested > 0)
+            axis_projection([1, 0, 0], thickness=thickness, expansion=expansion, solid=solid, cut=cut, 3d=3d) rotate(rot) children();
+    }
 }
