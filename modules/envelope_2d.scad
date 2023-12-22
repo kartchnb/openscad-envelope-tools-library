@@ -1,3 +1,40 @@
+/* [Test Parameters] */
+// The size of each test cell
+Cell_Size = 400;
+// The 2D model file
+2d_Model_File = "../test/test.svg";
+// The render quality
+Render_Quality = 32;
+
+// Test code
+echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
+
+include<../test/_test_grid.scad>
+
+$fn = $fn != 0 ? $fn : Render_Quality;
+
+_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_envelope()", "square_envelope(aspect=[1, 1])", "square_envelope(aspect=[2, 1])", "square_envelope(aspect=[1, 2])", "square_envelope(expansion=[0, 50])", "square_envelope(expansion=[50, 0])", "square_negative()", "square_frame()", "circle_envelope()", "circle_envelope(expansion=50)", "circle_negative()", "circle_frame()"])
+{
+    _envelope_tools_row_layout([Cell_Size, Cell_Size], 2d_Model_File)
+    {
+        import(2d_Model_File);
+        group() { square_envelope() import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_envelope(aspect=[1, 1]) import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_envelope(aspect=[2, 1]) import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_envelope(aspect=[1, 2]) import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_envelope(expansion=[0, 50]) import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_envelope(expansion=[50, 0]) import(2d_Model_File); %import(2d_Model_File); }
+        group() { square_negative() import (2d_Model_File); %import(2d_Model_File); }
+        group() { square_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
+        group() { circle_envelope() import(2d_Model_File); %import(2d_Model_File); }
+        group() { circle_envelope(expansion=50) import(2d_Model_File); %import(2d_Model_File); }
+        group() { circle_negative() import (2d_Model_File); %import(2d_Model_File); }
+        group() { circle_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
+    }
+}
+
+
+
 include<common.scad>
 use<axis_projection.scad>
 
@@ -42,20 +79,31 @@ module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
     {
         // If no aspect is being enforced (aspect is undefined), 
         // return the axis projection as-is
-        if (is_undef(aspect)) axis_projection([1, 0, 0], expansion=expansion, cut=cut, 3d=3d) children();
+        if (is_undef(aspect)) 
+        {
+            axis_projection([1, 0, 0], expansion=expansion, cut=cut, 3d=3d) children();
+        }
         
-        // If an aspect is being enforced, return the x AND y axis projections 
-        // overlapped, which is essentially the max of the two
-        else overlapped_axis_projection([1, 1, 0], expansion=expansion, cut=cut, 3d=3d) children();
+        // If an aspect is being enforced, maximum or minimum of the x and y axial projections
+        else
+        {
+            maximum_axis_projection([1, 1, 0], expansion=expansion, cut=cut, 3d=3d) children();
+        }
     }
 
     module scale_projection(ratio)
     {
         // Scale the axis projection (passed as a child), if needed
-        if (!is_undef(ratio)) scale([ratio, 1]) children();
+        if (!is_undef(ratio))
+        {
+            scale([ratio, 1]) children();
+        }
         
         // Otherwise, leave the projection as-is
-        else children();
+        else 
+        {
+            children();
+        }
     }
 
     intersection_for(params = [[0, x_ratio, x_expansion], [90, y_ratio, y_expansion]])
@@ -235,37 +283,6 @@ module circle_frame(frame=1, expansion=0, cut=false, 3d=false)
             children();
         circle_envelope(expansion=inner_expansion, cut=cut, 3d=3d)
             children();
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-// Test code
-echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
-
-include<../test/_test_grid.scad>
-
-2d_Model_File = "../test/test.svg";
-Cell_Size = [400, 400];
-
-_envelope_tools_grid_layout(Cell_Size, labels=["original", "square_envelope()", "square_envelope(aspect=[1, 1])", "square_envelope(aspect=[2, 1])", "square_envelope(aspect=[1, 2])", "square_envelope(expansion=[0, 50])", "square_envelope(expansion=[50, 0])", "square_negative()", "square_frame()", "circle_envelope()", "circle_envelope(expansion=50)", "circle_negative()", "circle_frame()"])
-{
-    _envelope_tools_row_layout(Cell_Size, 2d_Model_File)
-    {
-        import(2d_Model_File);
-        group() { square_envelope() import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(aspect=[1, 1]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(aspect=[2, 1]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(aspect=[1, 2]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(expansion=[0, 50]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(expansion=[50, 0]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_negative() import (2d_Model_File); %import(2d_Model_File); }
-        group() { square_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
-        group() { circle_envelope() import(2d_Model_File); %import(2d_Model_File); }
-        group() { circle_envelope(expansion=50) import(2d_Model_File); %import(2d_Model_File); }
-        group() { circle_negative() import (2d_Model_File); %import(2d_Model_File); }
-        group() { circle_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
     }
 }
 
