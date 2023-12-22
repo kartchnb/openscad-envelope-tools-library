@@ -1,3 +1,43 @@
+/* [Test Parameters] */
+// The size of each test cell
+Cell_Size = 250;
+// The 2D model file
+2d_Model_File = "../test/test.svg";
+// The render quality
+Render_Quality = 32;
+
+/* [Test Code] */
+$fn = $fn != 0 ? $fn : Render_Quality;
+include<../test/_test_grid.scad>
+
+labels = 
+[
+    "original", 
+    "outline(20)", "outline(20, 30)", "outline(20, -30)",
+    "outline(20, 0, \"external\")", "outline(20, 0, \"internal\")",
+    "outline(20, 0, \"external\", \"round\")", "outline(20, 0, \"internal\", \"chamfer\")",
+];
+
+_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=labels)
+{
+    _envelope_tools_row_layout([Cell_Size, Cell_Size], 2d_Model_File)
+    {
+        import(2d_Model_File);
+
+        group() {outline(20) import(2d_Model_File); #import(2d_Model_File);}
+        group() {outline(20, 30) import(2d_Model_File); #import(2d_Model_File);}
+        group() {outline(20, -30) import(2d_Model_File); #import(2d_Model_File);}
+
+        group() {outline(20, 0, "external") import(2d_Model_File); #import(2d_Model_File);}
+        group() {outline(20, 0, "internal") import(2d_Model_File); #import(2d_Model_File);}
+
+        group() {outline(20, 0, "center", "round") import(2d_Model_File); #import(2d_Model_File);}
+        group() {outline(20, 0, "center", "chamfer") import(2d_Model_File); #import(2d_Model_File);}
+    }
+}
+
+
+
 // Generate an outline of the underlying geometry
 //
 // parameters:
@@ -50,41 +90,4 @@ module outline(thickness=1, expansion=0, align="center", style="standard")
     }
 
 
-}
-
-
-
-//----------------------------------------------------------------------------
-// Test code
-echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
-
-include<../test/_test_grid.scad>
-
-2d_Model_File = "../test/test.svg";
-Cell_Size = [250, 250];
-
-labels = 
-[
-    "original", 
-    "outline(20)", "outline(20, 30)", "outline(20, -30)",
-    "outline(20, 0, \"external\")", "outline(20, 0, \"internal\")",
-    "outline(20, 0, \"external\", \"round\")", "outline(20, 0, \"internal\", \"chamfer\")",
-];
-
-_envelope_tools_grid_layout(Cell_Size, labels=labels)
-{
-    _envelope_tools_row_layout(Cell_Size, 2d_Model_File)
-    {
-        import(2d_Model_File);
-
-        group() {outline(20) import(2d_Model_File); #import(2d_Model_File);}
-        group() {outline(20, 30) import(2d_Model_File); #import(2d_Model_File);}
-        group() {outline(20, -30) import(2d_Model_File); #import(2d_Model_File);}
-
-        group() {outline(20, 0, "external") import(2d_Model_File); #import(2d_Model_File);}
-        group() {outline(20, 0, "internal") import(2d_Model_File); #import(2d_Model_File);}
-
-        group() {outline(20, 0, "center", "round") import(2d_Model_File); #import(2d_Model_File);}
-        group() {outline(20, 0, "center", "chamfer") import(2d_Model_File); #import(2d_Model_File);}
-    }
 }

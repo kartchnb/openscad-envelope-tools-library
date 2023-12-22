@@ -8,9 +8,8 @@ Cell_Size = 300;
 // The render quality
 Render_Quality = 32;
 
-// Test code
-echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
-
+/* [Test Code] */
+$fn = $fn > 0 ? $fn : Render_Quality;
 include<../test/_test_grid.scad>
 
 module _envelope_tools_generate_col(model_file, cell_size, 3d)

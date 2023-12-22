@@ -6,9 +6,8 @@ Cell_Size = 75;
 // The render quality
 Render_Quality = 32;
 
-// Test code
-echo("EnvelopeTools: If this message is showing up in your model, you need to <use> the library rather than <include> it");
-
+/* [Test Code] */
+$fn = $fn != 0 ? $fn : Render_Quality;
 include<../test/_test_grid.scad>
 
 _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_resize([50, 50])", "square_resize([25, 50])", "square_resize([50, 25])", "square_resize([10, 50])", "square_resize([25, 50], maximize=true)", "circle_resize(d=50)", "square_resize([10, 50], expansion=20)"])
