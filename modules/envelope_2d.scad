@@ -130,7 +130,7 @@ module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
 
 
 
-// Generate a negative of the underlying child geometry within a rectangular envelop
+// Generate a negative of the underlying child geometry within a rectangular envelope
 // An optional aspect can be specified to force the envelope to take a different 
 // aspect ratio rather than stricly follow the child geometry
 //
@@ -206,8 +206,8 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, 3d=false, max
 
 
 
-// Generate a circular envelop surrounding the child geometry
-// For now, the envelop must be a strict circle
+// Generate a circular envelope surrounding the child geometry
+// For now, the envelope must be a strict circle
 //
 // parameters:
 //  expansion - an additional amount to add to the envelope
@@ -230,8 +230,8 @@ module circle_envelope(expansion=0, cut=false, 3d=false)
 
 
 
-// Generate a negative of the underyling children in a circular envelop
-// For now, the envelop must be a strict circle
+// Generate a negative of the underyling children in a circular envelope
+// For now, the envelope must be a strict circle
 //
 // parameters:
 //  expansion - an additional amount to add to the envelope
@@ -254,7 +254,7 @@ module circle_negative(expansion=0, cut=false, 3d=false)
 
 
 // Generate a 2-dimensional circular frame around the underyling children
-// For now, the envelop must be a strict circle
+// For now, the envelope must be a strict circle
 //
 // parameters:
 //  frame - the width of the frame
