@@ -2,7 +2,7 @@
 // The size of each test cell
 Cell_Size = 400;
 // The 2D model file
-2d_Model_File = "../test/test.svg";
+Model_File_2D = "../test/test.svg";
 // The render quality
 Render_Quality = 32;
 
@@ -12,21 +12,21 @@ include<../test/_test_grid.scad>
 
 _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_envelope()", "square_envelope(aspect=[1, 1])", "square_envelope(aspect=[2, 1])", "square_envelope(aspect=[1, 2])", "square_envelope(expansion=[0, 50])", "square_envelope(expansion=[50, 0])", "square_negative()", "square_frame()", "circle_envelope()", "circle_envelope(expansion=50)", "circle_negative()", "circle_frame()"])
 {
-    _envelope_tools_row_layout([Cell_Size, Cell_Size], 2d_Model_File)
+    _envelope_tools_row_layout([Cell_Size, Cell_Size], Model_File_2D)
     {
-        import(2d_Model_File);
-        group() { square_envelope() import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(aspect=[1, 1]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(aspect=[2, 1]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(aspect=[1, 2]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(expansion=[0, 50]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_envelope(expansion=[50, 0]) import(2d_Model_File); %import(2d_Model_File); }
-        group() { square_negative() import (2d_Model_File); %import(2d_Model_File); }
-        group() { square_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
-        group() { circle_envelope() import(2d_Model_File); %import(2d_Model_File); }
-        group() { circle_envelope(expansion=50) import(2d_Model_File); %import(2d_Model_File); }
-        group() { circle_negative() import (2d_Model_File); %import(2d_Model_File); }
-        group() { circle_frame(frame=10) import(2d_Model_File); %import(2d_Model_File); }
+        import(Model_File_2D);
+        group() { square_envelope() import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(aspect=[1, 1]) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(aspect=[2, 1]) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(aspect=[1, 2]) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(expansion=[0, 50]) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(expansion=[50, 0]) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_negative() import (Model_File_2D); %import(Model_File_2D); }
+        group() { square_frame(frame=10) import(Model_File_2D); %import(Model_File_2D); }
+        group() { circle_envelope() import(Model_File_2D); %import(Model_File_2D); }
+        group() { circle_envelope(expansion=50) import(Model_File_2D); %import(Model_File_2D); }
+        group() { circle_negative() import (Model_File_2D); %import(Model_File_2D); }
+        group() { circle_frame(frame=10) import(Model_File_2D); %import(Model_File_2D); }
     }
 }
 
@@ -52,12 +52,12 @@ use<axis_projection.scad>
 //      (defaults to 0)
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
 //  max_envelope - a maximum length for a single size of the envelope
 //      this should not normally need to be changed unless you are generating
 //      *very* large models
-module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
+module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=false, max_envelope=_envelope_tools_default_max_envelope)
 {
     // Calculate the aspect ratio
     x_aspect = is_undef(aspect) ? undef 
@@ -72,19 +72,19 @@ module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
     x_expansion = is_list(expansion) ? expansion.x : expansion;
     y_expansion = is_list(expansion) ? expansion.y : expansion;
 
-    module generate_axis_projection(aspect, expansion, cut, 3d)
+    module generate_axis_projection(aspect, expansion, cut, model_is_3d)
     {
         // If no aspect is being enforced (aspect is undefined), 
         // return the axis projection as-is
         if (is_undef(aspect)) 
         {
-            axis_projection([1, 0, 0], expansion=expansion, cut=cut, 3d=3d) children();
+            axis_projection([1, 0, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d) children();
         }
         
         // If an aspect is being enforced, maximum or minimum of the x and y axial projections
         else
         {
-            maximum_axis_projection([1, 1, 0], expansion=expansion, cut=cut, 3d=3d) children();
+            maximum_axis_projection([1, 1, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d) children();
         }
     }
 
@@ -120,7 +120,7 @@ module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
         // Resize the axis projection to match the requested aspect
         scale_projection(ratio)
         // Generate an axis projection of the child geometry along the x axis
-        generate_axis_projection(aspect, expansion, cut, 3d)
+        generate_axis_projection(aspect, expansion, cut, model_is_3d)
         // Rotate so the desired axis of the child geometry is laying along the x axis
         rotate([0, 0, z_rot])
             // generate the child geometry
@@ -145,18 +145,18 @@ module square_envelope(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
 //      (defaults to 0)
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
 //  max_envelope - a maximum length for a single size of the envelope
 //      this should not normally need to be changed unless you are generating
 //      *very* large models
-module square_negative(aspect=undef, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
+module square_negative(aspect=undef, expansion=0, cut=false, model_is_3d=false, max_envelope=_envelope_tools_default_max_envelope)
 {
     difference()
     {
-        square_envelope(aspect=aspect, expansion=expansion, cut=cut, 3d=3d, max_envelope=max_envelope)
+        square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, max_envelope=max_envelope)
             children();
-        any_projection(cut=cut, 3d=3d)
+        any_projection(cut=cut, model_is_3d=model_is_3d)
             children();
     }
 }
@@ -180,12 +180,12 @@ module square_negative(aspect=undef, expansion=0, cut=false, 3d=false, max_envel
 //      (defaults to 1)
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
 //  max_envelope - a maximum length for a single size of the envelope
 //      this should not normally need to be changed unless you are generating
 //      *very* large models
-module square_frame(aspect=undef, frame=1, expansion=0, cut=false, 3d=false, max_envelope=_envelope_tools_default_max_envelope)
+module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=false, max_envelope=_envelope_tools_default_max_envelope)
 {
     frame_x = is_list(frame) ? frame.x : frame;
     frame_y = is_list(frame) ? frame.y : frame;
@@ -197,9 +197,9 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, 3d=false, max
 
     difference()
     {
-        square_envelope(aspect=aspect, expansion=outer_expansion, cut=cut, 3d=3d, max_envelope=max_envelope) 
+        square_envelope(aspect=aspect, expansion=outer_expansion, cut=cut, model_is_3d=model_is_3d, max_envelope=max_envelope) 
             children();
-        square_envelope(aspect=aspect, expansion=inner_expansion, cut=cut, 3d=3d, max_envelope=max_envelope) 
+        square_envelope(aspect=aspect, expansion=inner_expansion, cut=cut, model_is_3d=model_is_3d, max_envelope=max_envelope) 
             children();
     }
 }
@@ -215,16 +215,16 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, 3d=false, max
 //      (defaults to 0)
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
-module circle_envelope(expansion=0, cut=false, 3d=false)
+module circle_envelope(expansion=0, cut=false, model_is_3d=false)
 {
     hull()
     for (z_rot = [0: $fa: 360 - $fa])
     rotate([0, 0, z_rot])
     for (x_offset = [-expansion, expansion])
     translate([x_offset, 0])
-    any_projection(cut=cut, 3d=3d)
+    any_projection(cut=cut, model_is_3d=model_is_3d)
         children();
 }
 
@@ -239,13 +239,13 @@ module circle_envelope(expansion=0, cut=false, 3d=false)
 //      (defaults to 0)
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
-module circle_negative(expansion=0, cut=false, 3d=false)
+module circle_negative(expansion=0, cut=false, model_is_3d=false)
 {
     difference()
     {
-        circle_envelope(expansion=expansion, cut=cut, 3d=3d)
+        circle_envelope(expansion=expansion, cut=cut, model_is_3d=model_is_3d)
             children();
         children();
     }
@@ -264,9 +264,9 @@ module circle_negative(expansion=0, cut=false, 3d=false)
 //      (defaults to 0)
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
-module circle_frame(frame=1, expansion=0, cut=false, 3d=false)
+module circle_frame(frame=1, expansion=0, cut=false, model_is_3d=false)
 {
     frame = is_list(frame) ? frame.x : frame;
     expansion = is_list(expansion) ? expansion.x : expansion;
@@ -276,9 +276,9 @@ module circle_frame(frame=1, expansion=0, cut=false, 3d=false)
 
     difference()
     {
-        circle_envelope(expansion=outer_expansion, cut=cut, 3d=3d)
+        circle_envelope(expansion=outer_expansion, cut=cut, model_is_3d=model_is_3d)
             children();
-        circle_envelope(expansion=inner_expansion, cut=cut, 3d=3d)
+        circle_envelope(expansion=inner_expansion, cut=cut, model_is_3d=model_is_3d)
             children();
     }
 }

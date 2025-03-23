@@ -2,9 +2,9 @@
 // The test cell size (width and height)
 Cell_Size = 300;
 // The 2D model file to use
-2d_Model_File = "../test/test.svg";
+Model_File_2D = "../test/test.svg";
 // The 3D model file to use
-3d_Model_File = "../test/test.stl";
+Model_File_3D = "../test/test.stl";
 // The render quality
 Render_Quality = 32;
 
@@ -12,23 +12,23 @@ Render_Quality = 32;
 $fn = $fn > 0 ? $fn : Render_Quality;
 include<../test/_test_grid.scad>
 
-module _envelope_tools_generate_col(model_file, cell_size, 3d)
+module _envelope_tools_generate_col(model_file, cell_size, model_is_3d)
 {
     _envelope_tools_row_layout(cell_size, model_file)
     {
         import(model_file);
-        group() { any_projection(3d=3d) import(model_file); %import(model_file); }
-        group() { linear_extrude(20) any_projection(3d=3d) import(model_file); %import(model_file); }
-        group() { axis_projection([1, 1, 1], 3d=3d) import(model_file); %import(model_file); }
-        group() { maximum_axis_projection([1, 1, 1], 3d=3d) import(model_file); %import(model_file); }
-        group() { minimum_axis_projection([1, 1, 0], 3d=3d) import(model_file); %import(model_file); }
+        group() { any_projection(model_is_3d=model_is_3d) import(model_file); %import(model_file); }
+        group() { linear_extrude(20) any_projection(model_is_3d=model_is_3d) import(model_file); %import(model_file); }
+        group() { axis_projection([1, 1, 1], model_is_3d=model_is_3d) import(model_file); %import(model_file); }
+        group() { maximum_axis_projection([1, 1, 1], model_is_3d=model_is_3d) import(model_file); %import(model_file); }
+        group() { minimum_axis_projection([1, 1, 0], model_is_3d=model_is_3d) import(model_file); %import(model_file); }
     }
 }
 
 _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "any_projection()", "linear_extrusion(10) any_projection()", "axis_projection([1, 1, 1])", "maximum_axis_projection([1, 1, 1])", "minimum_axis_projection([1, 1, 0])"])
 {
-    _envelope_tools_generate_col(2d_Model_File, [Cell_Size, Cell_Size], 3d=false);
-    _envelope_tools_generate_col(3d_Model_File, [Cell_Size, Cell_Size], 3d=true);
+    _envelope_tools_generate_col(Model_File_2D, [Cell_Size, Cell_Size], model_is_3d=false);
+    _envelope_tools_generate_col(Model_File_3D, [Cell_Size, Cell_Size], model_is_3d=true);
 }
 
 
@@ -37,35 +37,35 @@ include<common.scad>
 
 
 
-// This module creates a projection of its child geometry, whether they are 2D or 3d
+// This module creates a projection of its child geometry, whether they are 2D or model_is_3d
 // The standard projection() module ignores 2D geometry, which makes sense, 
 // but this library benefits from having a more agnostic projection module
-// so it can process 2D and 3d geometry similarly.
+// so it can process 2D and model_is_3d geometry similarly.
 // The downside to this is that a warning will be displayed when this module is
-// used with 3d children:
-//  "Ignoring 3d child object for 2D operation"
-// This is harmless, but can be avoided by setting the 3d parameter to true for 
-// operations involving 3d children
+// used with model_is_3d children:
+//  "Ignoring model_is_3d child object for 2D operation"
+// This is harmless, but can be avoided by setting the model_is_3d parameter to true for 
+// operations involving model_is_3d children
 //
 // parameters: 
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      The operation will work either way, but if 3-dimensional children are
-//      passed without 3d being set to true, OpenSCAD will display a warning
+//      passed without model_is_3d being set to true, OpenSCAD will display a warning
 //      The warning is harmless but may be annoying
 //      (defaults to false)
-module any_projection(cut=false, 3d=false)
+module any_projection(cut=false, model_is_3d=false)
 {
-    // The standard projection command works for 3d geometry
+    // The standard projection command works for model_is_3d geometry
     projection(cut=cut)
         children();
 
     // Special projection for 2D geometry
-    // If used with 3d children, this operation will result in the following warning:
-    //  "Ignoring 3d child object for 2D operation"
+    // If used with model_is_3d children, this operation will result in the following warning:
+    //  "Ignoring model_is_3d child object for 2D operation"
     // This is not really a problem, other than it pollutes the error console
-    if (3d == false)
+    if (model_is_3d == false)
         projection(cut=cut)
             linear_extrude(1) // Just need to extrude an arbitrary amount here
             children();
@@ -95,9 +95,9 @@ module any_projection(cut=false, 3d=false)
 //      (defaults to true)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
-module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
+module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, model_is_3d=false)
 {
     module solidify(solid)
     {
@@ -134,8 +134,8 @@ module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut
             expand(expansion)               // Expand the projection line, if requested
             projection()                    // Generate a 2d projection
             rotate([270, 0, 0])             // Rotate the extrusion perpendicular with the horizontal plane
-            linear_extrude(thickness)       // Extrude the projection to make it 3d
-            any_projection(cut=cut, 3d=3d)  // Create a projection whether the children are 2D or 3d
+            linear_extrude(thickness)       // Extrude the projection to make it model_is_3d
+            any_projection(cut=cut, model_is_3d=model_is_3d)  // Create a projection whether the children are 2D or model_is_3d
             rotate(rot)                     // Rotate the child geometry to lay its requested axis along the x-axis
             children();                     // Generate the child geometry
     }
@@ -160,9 +160,9 @@ module axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut
 //      (defaults to true)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
-module maximum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
+module maximum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, model_is_3d=false)
 {
     // Iterate over each possible axis
     for (params = [[axes.x, [0, 0, 0]], [axes.y, [0, 0, 90]], [axes.z, [0, 90, 0]]])
@@ -172,17 +172,17 @@ module maximum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=t
 
         // Generate the projection line of the requested axis and align it to the x-axis
         if (!is_undef(axis_requested) && axis_requested > 0)
-            axis_projection([1, 0, 0], thickness=thickness, expansion=expansion, solid=solid, cut=cut, 3d=3d) rotate(rot) children();
+            axis_projection([1, 0, 0], thickness=thickness, expansion=expansion, solid=solid, cut=cut, model_is_3d=model_is_3d) rotate(rot) children();
     }
 }
 
 
 
 // Retained for backwards compatibility
-module overlapped_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
+module overlapped_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, model_is_3d=false)
 {
     echo("WARNING: This module is depricated and should be replaced with maximum_axis_projection")
-    maximum_axis_projection(axes=axes, thickness=thickness, expansion=expansion, solid=solid, cut=cut, 3d=3d);
+    maximum_axis_projection(axes=axes, thickness=thickness, expansion=expansion, solid=solid, cut=cut, model_is_3d=model_is_3d);
 }
 
 
@@ -204,9 +204,9 @@ module overlapped_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, soli
 //      (defaults to true)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false)
-//  3d - Used to manually specify that the children of this module are 3-dimensional
+//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
 //      (defaults to false)
-module minimum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, 3d=false)
+module minimum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=true, cut=false, model_is_3d=false)
 {
     // Iterate over each possible axis
     intersection_for (params = [[axes.x, [0, 0, 0]], [axes.y, [0, 0, 90]], [axes.z, [0, 90, 0]]])
@@ -216,6 +216,6 @@ module minimum_axis_projection(axes=[1, 0, 0], thickness=1, expansion=0, solid=t
 
         // Generate the projection line of the requested axis and align it to the x-axis
         if (!is_undef(axis_requested) && axis_requested > 0)
-            axis_projection([1, 0, 0], thickness=thickness, expansion=expansion, solid=solid, cut=cut, 3d=3d) rotate(rot) children();
+            axis_projection([1, 0, 0], thickness=thickness, expansion=expansion, solid=solid, cut=cut, model_is_3d=model_is_3d) rotate(rot) children();
     }
 }
