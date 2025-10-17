@@ -35,6 +35,10 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "any_pro
 
 
 
+include<common.scad>
+
+
+
 // This module creates a projection of its child geometry, whether they are 2D 
 // or 3D
 // The standard projection() module ignores 2D geometry, which makes sense, 
@@ -49,6 +53,7 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "any_pro
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
 // iota - a tiny value used for extruding 2D geometry
+//      (defaults to 0.001)
 //
 // NOTE: This module will function correctly in every instance if 
 // model_is_3d is left unset.
@@ -137,6 +142,7 @@ module any_projection(cut=false, model_is_3d=undef, iota=0.001)
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
 // iota - a tiny value used for extruding 2D geometry
+//      (defaults to 0.001)
 module axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model_is_3d=undef, iota=0.001)
 {
     // Uses hull to fill in gaps in projection lines, if requested
@@ -252,6 +258,7 @@ module axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
 // iota - a tiny value used for extruding 2D geometry
+//      (defaults to 0.001)
 module maximum_axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model_is_3d=undef, iota=0.001)
 {
     // Iterate over each possible axis
@@ -307,6 +314,7 @@ module maximum_axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=fals
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
 // iota - a tiny value used for extruding 2D geometry
+//      (defaults to 0.001)
 module minimum_axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model_is_3d=undef, iota=0.001)
 {
     // Iterate over each possible axis
