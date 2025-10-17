@@ -48,8 +48,11 @@ include<common.scad>
 // parameters: 
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false, same as the standard cut module)
-//  model_is_3d - Used to manually specify that the children of this module are 
-//      3-dimensional 
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
+//      WARNING: Setting this incorrectly for the underlying geometry will
+//      break the function
+//      When in doubt, leave it unset
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
 //  iota - a tiny value used for extruding 2D geometry
@@ -137,8 +140,11 @@ module any_projection(cut=false, model_is_3d=undef, iota=0.001)
 //      (defaults to true)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false, same as the standard cut module)
-//  model_is_3d - Used to manually specify that the children of this module are 
-//      3-dimensional
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
+//      WARNING: Setting this incorrectly for the underlying geometry will
+//      break the function
+//      When in doubt, leave it unset
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
 //  iota - a tiny value used for extruding 2D geometry
@@ -250,8 +256,8 @@ module axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model
 //      (defaults to true)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false, same as the standard cut module)
-//  model_is_3d - Used to manually specify that the children of this module are 
-//      3-dimensional 
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
 //      WARNING: Setting this incorrectly for the underlying geometry will
 //      break the function
 //      When in doubt, leave it unset
@@ -309,8 +315,11 @@ module maximum_axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=fals
 //      (defaults to true)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false, same as the standard cut module)
-//  model_is_3d - Used to manually specify that the children of this module are 
-//      3-dimensional 
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
+//      WARNING: Setting this incorrectly for the underlying geometry will
+//      break the function
+//      When in doubt, leave it unset
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
 //  iota - a tiny value used for extruding 2D geometry
