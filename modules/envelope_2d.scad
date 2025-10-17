@@ -3,6 +3,10 @@
 Cell_Size = 400;
 // The 2D model file
 Model_File_2D = "../test/test.svg";
+// The value to use for iota
+Iota = 0.001;
+// The value to use for omega
+Omega = 9999;
 // The render quality
 Render_Quality = 32;
 
@@ -32,7 +36,6 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_
 
 
 
-include<common.scad>
 use<axis_projection.scad>
 
 
@@ -46,45 +49,76 @@ use<axis_projection.scad>
 //      if set, the envelope will be resized to the requested ratio
 //      if left undefined, the envelope will wrap the underlying geometry
 //      (defaults to undef)
-//  expansion - an additional amount to add to the envelope
-//      a single value can be passed for all sides, or a list can be 
+//  expansion - the amount to extend the line beyond the bounds of the child 
+//      geometry
+//      So, for example, if expansion is set to 2 and a cube of size 20 is
+//      passed in, the projected lines will each have a dimension of 24
+//      If this value is negative, the projected line will be shorter than the
+//      corresponding dimension of the child geometry
+//      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
-//  cut - serves the same purpose as the cut option in the projection() function
-//      (defaults to false)
-//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
-//      (defaults to false)
-//  max_envelope - a maximum length for a single size of the envelope
-//      this should not normally need to be changed unless you are generating
-//      *very* large models
-module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=false, max_envelope=_envelope_tools_default_max_envelope)
+//  cut - the same as the "cut" parameter in the standard projection module
+//      (defaults to false, same as the standard cut module)
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
+//      WARNING: Setting this incorrectly for the underlying geometry will
+//      break the function
+//      When in doubt, leave it unset
+//      (defaults to undef, which will handle any geometry but will always
+//      display a warning)
+//  iota - a small value used to extrude 2D geometry
+//      (defaults to 0.001)
+//  omega - the largest allowable value
+//      This should not need to be changed unless working with very large 
+//      geometries
+//      (defaults to 9999)
+module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
     // Calculate the aspect ratio
-    x_aspect = is_undef(aspect) ? undef 
-        : is_list(aspect) ? aspect.x : aspect;
-    y_aspect = is_undef(aspect) ? undef 
-        : is_list(aspect) ? aspect.y : aspect;
-    min_dimension = is_undef(aspect) ? undef : min(x_aspect, y_aspect);
-    x_ratio = is_undef(aspect) ? undef : x_aspect / min_dimension;
-    y_ratio = is_undef(aspect) ? undef : y_aspect / min_dimension;
+    x_aspect = is_undef(aspect) 
+        ? undef 
+        : is_list(aspect) 
+            ? aspect.x 
+            : aspect;
+    y_aspect = is_undef(aspect) 
+            ? undef 
+            : is_list(aspect) 
+                ? aspect.y 
+                : aspect;
+    min_dimension = is_undef(aspect) 
+        ? undef 
+        : min(x_aspect, y_aspect);
+    x_ratio = is_undef(aspect) 
+        ? undef : 
+        x_aspect / min_dimension;
+    y_ratio = is_undef(aspect) 
+        ? undef : 
+        y_aspect / min_dimension;
 
     // Calculate the expansion to add to the envelope
-    x_expansion = is_list(expansion) ? expansion.x : expansion;
-    y_expansion = is_list(expansion) ? expansion.y : expansion;
+    x_expansion = is_list(expansion) 
+        ? expansion.x 
+        : expansion;
+    y_expansion = is_list(expansion) 
+        ? expansion.y 
+        : expansion;
 
-    module generate_axis_projection(aspect, expansion, cut, model_is_3d)
+    module generate_axis_projection()
     {
-        // If no aspect is being enforced (aspect is undefined), 
-        // return the axis projection as-is
+        // If no aspect is being enforced (aspect is undefined), return the axis 
+        // projection as-is
         if (is_undef(aspect)) 
         {
-            axis_projection([1, 0, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d) children();
+            axis_projection(axes=[1, 0, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
+                children();
         }
         
         // If an aspect is being enforced, maximum or minimum of the x and y axial projections
         else
         {
-            maximum_axis_projection([1, 1, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d) children();
+            maximum_axis_projection(axes=[1, 1, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
+                children();
         }
     }
 
@@ -93,7 +127,8 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=false, 
         // Scale the axis projection (passed as a child), if needed
         if (!is_undef(ratio))
         {
-            scale([ratio, 1]) children();
+            scale([ratio, 1])
+                children();
         }
         
         // Otherwise, leave the projection as-is
@@ -103,7 +138,12 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=false, 
         }
     }
 
-    intersection_for(params = [[0, x_ratio, x_expansion], [90, y_ratio, y_expansion]])
+    // Find the intersection of the X and Y envelopes
+    intersection_for(params = 
+        [
+            [0, x_ratio, x_expansion],
+            [90, y_ratio, y_expansion]
+        ])
     {
         z_rot = params[0];
         ratio = params[1];
@@ -111,18 +151,20 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=false, 
 
         // Rotate the horizontal plane to run along the correct axis
         rotate([0, 0, -z_rot])
-        // Project the plane into a 2d surface
-        projection()
-        // Rotate the vertical plane to run along the y axis
-        rotate([90, 0, 0])
-        // Extrude the axial projection up and down into a vertical plane
-        linear_extrude(max_envelope, center=true)
-        // Resize the axis projection to match the requested aspect
-        scale_projection(ratio)
-        // Generate an axis projection of the child geometry along the x axis
-        generate_axis_projection(aspect, expansion, cut, model_is_3d)
-        // Rotate so the desired axis of the child geometry is laying along the x axis
-        rotate([0, 0, z_rot])
+            // Project the plane into a 2d surface
+            projection()
+            // Rotate the vertical plane to run along the y axis
+            rotate([90, 0, 0])
+            // Extrude the axial projection up and down into a vertical plane
+            linear_extrude(omega, center=true)
+            // Resize the axis projection to match the requested aspect
+            scale_projection(ratio)
+            // Generate an axis projection of the child geometry along the x 
+            // axis
+            generate_axis_projection()
+            // Rotate so the desired axis of the child geometry is laying along 
+            // the x axis
+            rotate([0, 0, z_rot])
             // generate the child geometry
             children();
     }
@@ -130,48 +172,68 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=false, 
 
 
 
-// Generate a negative of the underlying child geometry within a rectangular envelope
+// Generate a negative of the underlying child geometry within a rectangular 
+// envelope.
 // An optional aspect can be specified to force the envelope to take a different 
-// aspect ratio rather than stricly follow the child geometry
+// aspect ratio rather than strictly follow the child geometry
 //
 // parameters:
 //  aspect - An optional aspect ratio to enforce on the envelope
 //      if set, the envelope will be resized to the requested ratio
 //      if left undefined, the envelope will wrap the underlying geometry
 //      (defaults to undef)
-//  expansion - an additional amount to add to the envelope
-//      a single value can be passed for all sides, or a list can be 
+//  expansion - the amount to extend the line beyond the bounds of the child 
+//      geometry
+//      So, for example, if expansion is set to 2 and a cube of size 20 is
+//      passed in, the projected lines will each have a dimension of 24
+//      If this value is negative, the projected line will be shorter than the
+//      corresponding dimension of the child geometry
+//      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
-//  cut - serves the same purpose as the cut option in the projection() function
-//      (defaults to false)
-//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
-//      (defaults to false)
-//  max_envelope - a maximum length for a single size of the envelope
-//      this should not normally need to be changed unless you are generating
-//      *very* large models
-module square_negative(aspect=undef, expansion=0, cut=false, model_is_3d=false, max_envelope=_envelope_tools_default_max_envelope)
+//  cut - the same as the "cut" parameter in the standard projection module
+//      (defaults to false, same as the standard cut module)
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
+//      WARNING: Setting this incorrectly for the underlying geometry will
+//      break the function
+//      When in doubt, leave it unset
+//      (defaults to undef, which will handle any geometry but will always
+//      display a warning)
+//  iota - a small value used to extrude 2D geometry
+//      (defaults to 0.001)
+//  omega - the largest allowable value
+//      This should not need to be changed unless working with very large 
+//      geometries
+//      (defaults to 9999)
+module square_negative(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
     difference()
     {
-        square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, max_envelope=max_envelope)
+        square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
             children();
-        any_projection(cut=cut, model_is_3d=model_is_3d)
+        any_projection(cut=cut, model_is_3d=model_is_3d, iota=iota)
             children();
     }
 }
 
 
 
-// Generates a 2-dimensional frame (like a picture frame) around the underlying geometry.
+// Generates a 2-dimensional frame (like a picture frame) around the underlying 
+// geometry.
 // 
 // parameters:
 //  aspect - An optional aspect ratio to enforce on the envelope
 //      if set, the envelope will be resized to the requested ratio
 //      if left undefined, the envelope will wrap the underlying geometry
 //      (defaults to undef)
-//  expansion - an additional amount to add to the envelope
-//      a single value can be passed for all sides, or a list can be 
+//  expansion - the amount to extend the line beyond the bounds of the child 
+//      geometry
+//      So, for example, if expansion is set to 2 and a cube of size 20 is
+//      passed in, the projected lines will each have a dimension of 24
+//      If this value is negative, the projected line will be shorter than the
+//      corresponding dimension of the child geometry
+//      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
 //  frame - an additional frame to add to the envelope
@@ -180,26 +242,42 @@ module square_negative(aspect=undef, expansion=0, cut=false, model_is_3d=false, 
 //      (defaults to 1)
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
-//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
-//      (defaults to false)
-//  max_envelope - a maximum length for a single size of the envelope
-//      this should not normally need to be changed unless you are generating
-//      *very* large models
-module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=false, max_envelope=_envelope_tools_default_max_envelope)
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
+//      WARNING: Setting this incorrectly for the underlying geometry will
+//      break the function
+//      When in doubt, leave it unset
+//      (defaults to undef, which will handle any geometry but will always
+//      display a warning)
+//  iota - a small value used to extrude 2D geometry
+//      (defaults to 0.001)
+//  omega - the largest allowable value
+//      This should not need to be changed unless working with very large 
+//      geometries
+//      (defaults to 9999)
+module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
-    frame_x = is_list(frame) ? frame.x : frame;
-    frame_y = is_list(frame) ? frame.y : frame;
-    expansion_x = is_list(expansion) ? expansion.x : expansion;
-    expansion_y = is_list(expansion) ? expansion.y : expansion;
+    frame_x = is_list(frame) 
+        ? frame.x 
+        : frame;
+    frame_y = is_list(frame) 
+        ? frame.y 
+        : frame;
+    expansion_x = is_list(expansion) 
+        ? expansion.x 
+        : expansion;
+    expansion_y = is_list(expansion) 
+        ? expansion.y 
+        : expansion;
 
     inner_expansion = [expansion_x, expansion_y];
     outer_expansion = inner_expansion + [frame_x, frame_x];
 
     difference()
     {
-        square_envelope(aspect=aspect, expansion=outer_expansion, cut=cut, model_is_3d=model_is_3d, max_envelope=max_envelope) 
+        square_envelope(aspect=aspect, expansion=outer_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega) 
             children();
-        square_envelope(aspect=aspect, expansion=inner_expansion, cut=cut, model_is_3d=model_is_3d, max_envelope=max_envelope) 
+        square_envelope(aspect=aspect, expansion=inner_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega) 
             children();
     }
 }
@@ -210,22 +288,36 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=f
 // For now, the envelope must be a strict circle
 //
 // parameters:
-//  expansion - an additional amount to add to the envelope
-//      unlike square_envelope, this must be a single value
+//  expansion - the amount to extend the line beyond the bounds of the child 
+//      geometry
+//      So, for example, if expansion is set to 2 and a cube of size 20 is
+//      passed in, the projected lines will each have a dimension of 24
+//      If this value is negative, the projected line will be shorter than the
+//      corresponding dimension of the child geometry
+//      A single value can be passed for all sides, or a list can be 
+//      used to give different x and y expansion values
 //      (defaults to 0)
-//  cut - serves the same purpose as the cut option in the projection() function
-//      (defaults to false)
-//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
-//      (defaults to false)
-module circle_envelope(expansion=0, cut=false, model_is_3d=false)
+//  cut - the same as the "cut" parameter in the standard projection module
+//      (defaults to false, same as the standard cut module)
+//  model_is_3d - Used to manually specify that the children of this module are 
+//      3-dimensional
+//      (defaults to undef, which will handle any geometry but will always
+//      display a warning)
+//  iota - a small value used to extrude 2D geometry
+//      (defaults to 0.001)
+module circle_envelope(expansion=0, cut=false, model_is_3d=undef, iota=0.001)
 {
     hull()
-    for (z_rot = [0: $fa: 360 - $fa])
-    rotate([0, 0, z_rot])
-    for (x_offset = [-expansion, expansion])
-    translate([x_offset, 0])
-    any_projection(cut=cut, model_is_3d=model_is_3d)
-        children();
+        for (z_rot = [0: $fa: 360 - $fa])
+        {
+            rotate([0, 0, z_rot])
+                for (x_offset = [-expansion, expansion])
+                {
+                    translate([x_offset, 0])
+                        any_projection(cut=cut, model_is_3d=model_is_3d, iota=iota)
+                        children();
+                }
+        }
 }
 
 
@@ -234,18 +326,28 @@ module circle_envelope(expansion=0, cut=false, model_is_3d=false)
 // For now, the envelope must be a strict circle
 //
 // parameters:
-//  expansion - an additional amount to add to the envelope
-//      unlike square_envelope, this must be a single value
+//  expansion - the amount to extend the line beyond the bounds of the child 
+//      geometry
+//      So, for example, if expansion is set to 2 and a cube of size 20 is
+//      passed in, the projected lines will each have a dimension of 24
+//      If this value is negative, the projected line will be shorter than the
+//      corresponding dimension of the child geometry
+//      A single value can be passed for all sides, or a list can be 
+//      used to give different x and y expansion values
 //      (defaults to 0)
-//  cut - serves the same purpose as the cut option in the projection() function
-//      (defaults to false)
-//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
-//      (defaults to false)
-module circle_negative(expansion=0, cut=false, model_is_3d=false)
+//  cut - the same as the "cut" parameter in the standard projection module
+//      (defaults to false, same as the standard cut module)
+//  model_is_3d - Used to manually specify that the children of this module are 
+//      3-dimensional
+//      (defaults to undef, which will handle any geometry but will always
+//      display a warning)
+//  iota - a small value used to extrude 2D geometry
+//      (defaults to 0.001)
+module circle_negative(expansion=0, cut=false, model_is_3d=undef, iota=0.001)
 {
     difference()
     {
-        circle_envelope(expansion=expansion, cut=cut, model_is_3d=model_is_3d)
+        circle_envelope(expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
             children();
         children();
     }
@@ -259,26 +361,40 @@ module circle_negative(expansion=0, cut=false, model_is_3d=false)
 // parameters:
 //  frame - the width of the frame
 //      (defaults to 1)
-//  expansion - an additional amount to add to the envelope
-//      unlike square_envelope, this must be a single value
+//  expansion - the amount to extend the line beyond the bounds of the child 
+//      geometry
+//      So, for example, if expansion is set to 2 and a cube of size 20 is
+//      passed in, the projected lines will each have a dimension of 24
+//      If this value is negative, the projected line will be shorter than the
+//      corresponding dimension of the child geometry
+//      A single value can be passed for all sides, or a list can be 
+//      used to give different x and y expansion values
 //      (defaults to 0)
-//  cut - serves the same purpose as the cut option in the projection() function
-//      (defaults to false)
-//  model_is_3d - Used to manually specify that the children of this module are 3-dimensional
-//      (defaults to false)
-module circle_frame(frame=1, expansion=0, cut=false, model_is_3d=false)
+//  cut - the same as the "cut" parameter in the standard projection module
+//      (defaults to false, same as the standard cut module)
+//  model_is_3d - Used to manually specify that the children of this module are 
+//      3-dimensional
+//      (defaults to undef, which will handle any geometry but will always
+//      display a warning)
+//  iota - a small value used to extrude 2D geometry
+//      (defaults to 0.001)
+module circle_frame(frame=1, expansion=0, cut=false, model_is_3d=undef, iota=0.001)
 {
-    frame = is_list(frame) ? frame.x : frame;
-    expansion = is_list(expansion) ? expansion.x : expansion;
+    frame = is_list(frame) 
+        ? frame.x 
+        : frame;
+    expansion = is_list(expansion) 
+        ? expansion.x 
+        : expansion;
 
     inner_expansion = expansion;
     outer_expansion = inner_expansion + frame;
 
     difference()
     {
-        circle_envelope(expansion=outer_expansion, cut=cut, model_is_3d=model_is_3d)
+        circle_envelope(expansion=outer_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
             children();
-        circle_envelope(expansion=inner_expansion, cut=cut, model_is_3d=model_is_3d)
+        circle_envelope(expansion=inner_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
             children();
     }
 }
