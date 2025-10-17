@@ -52,7 +52,7 @@ include<common.scad>
 //      3-dimensional 
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
-// iota - a tiny value used for extruding 2D geometry
+//  iota - a tiny value used for extruding 2D geometry
 //      (defaults to 0.001)
 //
 // NOTE: This module will function correctly in every instance if 
@@ -141,7 +141,7 @@ module any_projection(cut=false, model_is_3d=undef, iota=0.001)
 //      3-dimensional
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
-// iota - a tiny value used for extruding 2D geometry
+//  iota - a tiny value used for extruding 2D geometry
 //      (defaults to 0.001)
 module axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model_is_3d=undef, iota=0.001)
 {
@@ -257,7 +257,7 @@ module axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model
 //      When in doubt, leave it unset
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
-// iota - a tiny value used for extruding 2D geometry
+//  iota - a tiny value used for extruding 2D geometry
 //      (defaults to 0.001)
 module maximum_axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model_is_3d=undef, iota=0.001)
 {
@@ -313,7 +313,7 @@ module maximum_axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=fals
 //      3-dimensional 
 //      (defaults to undef, which will handle any geometry but will always
 //      display a warning)
-// iota - a tiny value used for extruding 2D geometry
+//  iota - a tiny value used for extruding 2D geometry
 //      (defaults to 0.001)
 module minimum_axis_projection(axes=[1, 0, 0], expansion=0, solid=true, cut=false, model_is_3d=undef, iota=0.001)
 {
