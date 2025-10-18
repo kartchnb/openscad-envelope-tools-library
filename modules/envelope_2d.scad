@@ -49,12 +49,12 @@ use<axis_projection.scad>
 //      if set, the envelope will be resized to the requested ratio
 //      if left undefined, the envelope will wrap the underlying geometry
 //      (defaults to undef)
-//  expansion - the amount to extend the line beyond the bounds of the child 
+//  expansion - the amount to extend the envelope beyond the bounds of the child 
 //      geometry
 //      So, for example, if expansion is set to 2 and a cube of size 20 is
-//      passed in, the projected lines will each have a dimension of 24
-//      If this value is negative, the projected line will be shorter than the
-//      corresponding dimension of the child geometry
+//      passed in, the envelope will each have dimensions of 24
+//      If this value is negative, the envelope will be smaller than the
+//      dimensions of the child geometry
 //      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
@@ -182,12 +182,12 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
 //      if set, the envelope will be resized to the requested ratio
 //      if left undefined, the envelope will wrap the underlying geometry
 //      (defaults to undef)
-//  expansion - the amount to extend the line beyond the bounds of the child 
+//  expansion - the amount to extend the envelope beyond the bounds of the child 
 //      geometry
 //      So, for example, if expansion is set to 2 and a cube of size 20 is
-//      passed in, the projected lines will each have a dimension of 24
-//      If this value is negative, the projected line will be shorter than the
-//      corresponding dimension of the child geometry
+//      passed in, the envelope will each have dimensions of 24
+//      If this value is negative, the envelope will be smaller than the
+//      dimensions of the child geometry
 //      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
@@ -227,12 +227,12 @@ module square_negative(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
 //      if set, the envelope will be resized to the requested ratio
 //      if left undefined, the envelope will wrap the underlying geometry
 //      (defaults to undef)
-//  expansion - the amount to extend the line beyond the bounds of the child 
+//  expansion - the amount to extend the envelope beyond the bounds of the child 
 //      geometry
 //      So, for example, if expansion is set to 2 and a cube of size 20 is
-//      passed in, the projected lines will each have a dimension of 24
-//      If this value is negative, the projected line will be shorter than the
-//      corresponding dimension of the child geometry
+//      passed in, the envelope will each have dimensions of 24
+//      If this value is negative, the envelope will be smaller than the
+//      dimensions of the child geometry
 //      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
@@ -288,12 +288,12 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=u
 // For now, the envelope must be a strict circle
 //
 // parameters:
-//  expansion - the amount to extend the line beyond the bounds of the child 
+//  expansion - the amount to extend the envelope beyond the bounds of the child 
 //      geometry
 //      So, for example, if expansion is set to 2 and a cube of size 20 is
-//      passed in, the projected lines will each have a dimension of 24
-//      If this value is negative, the projected line will be shorter than the
-//      corresponding dimension of the child geometry
+//      passed in, the envelope will each have dimensions of 24
+//      If this value is negative, the envelope will be smaller than the
+//      dimensions of the child geometry
 //      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
@@ -326,12 +326,12 @@ module circle_envelope(expansion=0, cut=false, model_is_3d=undef, iota=0.001)
 // For now, the envelope must be a strict circle
 //
 // parameters:
-//  expansion - the amount to extend the line beyond the bounds of the child 
+//  expansion - the amount to extend the envelope beyond the bounds of the child 
 //      geometry
 //      So, for example, if expansion is set to 2 and a cube of size 20 is
-//      passed in, the projected lines will each have a dimension of 24
-//      If this value is negative, the projected line will be shorter than the
-//      corresponding dimension of the child geometry
+//      passed in, the envelope will each have dimensions of 24
+//      If this value is negative, the envelope will be smaller than the
+//      dimensions of the child geometry
 //      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
@@ -361,12 +361,12 @@ module circle_negative(expansion=0, cut=false, model_is_3d=undef, iota=0.001)
 // parameters:
 //  frame - the width of the frame
 //      (defaults to 1)
-//  expansion - the amount to extend the line beyond the bounds of the child 
+//  expansion - the amount to extend the envelope beyond the bounds of the child 
 //      geometry
 //      So, for example, if expansion is set to 2 and a cube of size 20 is
-//      passed in, the projected lines will each have a dimension of 24
-//      If this value is negative, the projected line will be shorter than the
-//      corresponding dimension of the child geometry
+//      passed in, the envelope will each have dimensions of 24
+//      If this value is negative, the envelope will be smaller than the
+//      dimensions of the child geometry
 //      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
