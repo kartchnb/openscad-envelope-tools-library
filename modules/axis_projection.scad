@@ -6,7 +6,7 @@ Model_File_2D = "../test/test.svg";
 // The 3D model file to use
 Model_File_3D = "../test/test.stl";
 // The value to use for iota
-Iota = 0.001;
+Iota = 5;
 // The render quality
 Render_Quality = 32;
 
@@ -21,13 +21,14 @@ module _envelope_tools_generate_col(model_file, cell_size, model_is_3d)
         import(model_file);
         group() { any_projection(model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
         group() { linear_extrude(20) any_projection(model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
-        group() { axis_projection([1, 1, 1], model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
-        group() { maximum_axis_projection([1, 1, 1], model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
-        group() { minimum_axis_projection([1, 1, 0], model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
+        group() { axis_projection(axes=[1, 1, 1], model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
+        group() { axis_projection(axes=[1, 1, 1], expansion=50, model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
+        group() { maximum_axis_projection(axes=[1, 1, 1], model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
+        group() { minimum_axis_projection(axes=[1, 1, 0], model_is_3d=model_is_3d, iota=Iota) import(model_file); %import(model_file); }
     }
 }
 
-_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "any_projection()", "linear_extrusion(10) any_projection()", "axis_projection([1, 1, 1])", "maximum_axis_projection([1, 1, 1])", "minimum_axis_projection([1, 1, 0])"])
+_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "any_projection()", "linear_extrusion(10) any_projection()", "axis_projection([1, 1, 1])", "axis_projection([1, 1, 1] expansion=50)", "maximum_axis_projection([1, 1, 1])", "minimum_axis_projection([1, 1, 0])"])
 {
     _envelope_tools_generate_col(Model_File_2D, [Cell_Size, Cell_Size], model_is_3d=false);
     _envelope_tools_generate_col(Model_File_3D, [Cell_Size, Cell_Size], model_is_3d=true);
