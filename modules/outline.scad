@@ -88,6 +88,4 @@ module outline(thickness=1, expansion=0, align="center", style="standard")
                 children();
         }
     }
-
-
 }
