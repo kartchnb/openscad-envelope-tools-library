@@ -4,7 +4,7 @@ Cell_Size = 400;
 // The 2D model file
 Model_File_2D = "../test/test.svg";
 // The value to use for iota
-Iota = 0.001;
+Iota = 1;
 // The value to use for omega
 Omega = 9999;
 // The render quality
@@ -19,18 +19,18 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_
     _envelope_tools_row_layout([Cell_Size, Cell_Size], Model_File_2D)
     {
         import(Model_File_2D);
-        group() { square_envelope() import(Model_File_2D); %import(Model_File_2D); }
-        group() { square_envelope(aspect=[1, 1]) import(Model_File_2D); %import(Model_File_2D); }
-        group() { square_envelope(aspect=[2, 1]) import(Model_File_2D); %import(Model_File_2D); }
-        group() { square_envelope(aspect=[1, 2]) import(Model_File_2D); %import(Model_File_2D); }
-        group() { square_envelope(expansion=[0, 50]) import(Model_File_2D); %import(Model_File_2D); }
-        group() { square_envelope(expansion=[50, 0]) import(Model_File_2D); %import(Model_File_2D); }
-        group() { square_negative() import (Model_File_2D); %import(Model_File_2D); }
-        group() { square_frame(frame=10) import(Model_File_2D); %import(Model_File_2D); }
-        group() { circle_envelope() import(Model_File_2D); %import(Model_File_2D); }
-        group() { circle_envelope(expansion=50) import(Model_File_2D); %import(Model_File_2D); }
-        group() { circle_negative() import (Model_File_2D); %import(Model_File_2D); }
-        group() { circle_frame(frame=10) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(aspect=[1, 1], model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(aspect=[2, 1], model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(aspect=[1, 2], model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(expansion=[0, 50], model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_envelope(expansion=[50, 0], model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_negative(model_is_3d=false, iota=Iota, omega=Omega) import (Model_File_2D); %import(Model_File_2D); }
+        group() { square_frame(frame=10, model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { circle_envelope(model_is_3d=false, iota=Iota) import(Model_File_2D); %import(Model_File_2D); }
+        group() { circle_envelope(expansion=50, model_is_3d=false, iota=Iota) import(Model_File_2D); %import(Model_File_2D); }
+        group() { circle_negative(model_is_3d=false, iota=Iota) import (Model_File_2D); %import(Model_File_2D); }
+        group() { circle_frame(frame=10, model_is_3d=false, iota=Iota) import(Model_File_2D); %import(Model_File_2D); }
     }
 }
 
@@ -104,20 +104,20 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
         ? expansion.y 
         : expansion;
 
-    module generate_axis_projection()
+    module generate_axis_projection(local_expansion)
     {
         // If no aspect is being enforced (aspect is undefined), return the axis 
         // projection as-is
         if (is_undef(aspect)) 
         {
-            axis_projection(axes=[1, 0, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
+            axis_projection(axes=[1, 0, 0], expansion=local_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
                 children();
         }
         
         // If an aspect is being enforced, maximum or minimum of the x and y axial projections
         else
         {
-            maximum_axis_projection(axes=[1, 1, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
+            maximum_axis_projection(axes=[1, 1, 0], expansion=local_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
                 children();
         }
     }
@@ -161,7 +161,7 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
             scale_projection(ratio)
             // Generate an axis projection of the child geometry along the x 
             // axis
-            generate_axis_projection()
+            generate_axis_projection(expansion)
             // Rotate so the desired axis of the child geometry is laying along 
             // the x axis
             rotate([0, 0, z_rot])
