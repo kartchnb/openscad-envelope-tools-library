@@ -35,10 +35,6 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "any_pro
 
 
 
-include<common.scad>
-
-
-
 // This module creates a projection of its child geometry, whether they are 2D 
 // or 3D
 // The standard projection() module ignores 2D geometry, which makes sense, 
