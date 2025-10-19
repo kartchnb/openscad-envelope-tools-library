@@ -76,33 +76,16 @@ use<axis_projection.scad>
 module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
     // Calculate the aspect ratio
-    x_aspect = is_undef(aspect) 
-        ? undef 
-        : is_list(aspect) 
-            ? aspect.x 
-            : aspect;
-    y_aspect = is_undef(aspect) 
-            ? undef 
-            : is_list(aspect) 
-                ? aspect.y 
-                : aspect;
-    min_dimension = is_undef(aspect) 
-        ? undef 
-        : min(x_aspect, y_aspect);
-    x_ratio = is_undef(aspect) 
-        ? undef : 
-        x_aspect / min_dimension;
-    y_ratio = is_undef(aspect) 
-        ? undef : 
-        y_aspect / min_dimension;
+    x_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.x : aspect;
+    y_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.y : aspect;
+    
+    min_dimension = is_undef(aspect) ? undef : min(x_aspect, y_aspect);
+    x_ratio = is_undef(aspect) ? undef : x_aspect / min_dimension;
+    y_ratio = is_undef(aspect) ? undef : y_aspect / min_dimension;
 
     // Calculate the expansion to add to the envelope
-    x_expansion = is_list(expansion) 
-        ? expansion.x 
-        : expansion;
-    y_expansion = is_list(expansion) 
-        ? expansion.y 
-        : expansion;
+    x_expansion = is_list(expansion) ? expansion.x : expansion;
+    y_expansion = is_list(expansion) ? expansion.y : expansion;
 
     module generate_axis_projection(local_expansion)
     {
@@ -114,7 +97,8 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
                 children();
         }
         
-        // If an aspect is being enforced, maximum or minimum of the x and y axial projections
+        // If an aspect is being enforced, project the maximum of the x and y 
+        // axial projections
         else
         {
             maximum_axis_projection(axes=[1, 1, 0], expansion=local_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
