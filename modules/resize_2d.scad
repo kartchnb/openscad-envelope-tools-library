@@ -54,10 +54,6 @@ use<envelope_2d.scad>
 //      This can be specified as list with width and height or a single value
 //      that will be used for both dimensions
 //      (defaults to 1)
-//  aspect - An optional aspect ratio to enforce on the envelope
-//      if set, the envelope will be resized to the requested ratio
-//      if left undefined, the envelope will wrap the underlying geometry
-//      (defaults to undef)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false, same as the standard cut module)
 //  model_is_3d - Used to manually specify whether the children of this module 
