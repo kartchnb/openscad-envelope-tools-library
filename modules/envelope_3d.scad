@@ -67,6 +67,17 @@ use<envelope_2d.scad>
 //      (defaults to 9999)
 module prism_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
+    // Calculate the aspect ratio
+    x_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.x : aspect;
+    y_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.y : aspect;
+    z_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.z : aspect;
+
+    min_dimension = is_undef(aspect) ? undef : min(x_aspect, y_aspect, z_aspect);
+    x_ratio = is_undef(aspect) ? undef : x_aspect / min_dimension;
+    y_ratio = is_undef(aspect) ? undef : y_aspect / min_dimension;
+    z_ratio = is_undef(aspect) ? undef : z_aspect / min_dimension;
+
+    // Calculate the expansion to add to the envelope
     x_expansion = is_list(expansion) ? expansion.x : expansion;
     y_expansion = is_list(expansion) ? expansion.y : expansion;
     z_expansion = is_list(expansion) ? expansion.z : expansion;
