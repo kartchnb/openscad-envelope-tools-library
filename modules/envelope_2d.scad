@@ -14,7 +14,7 @@ Render_Quality = 32;
 $fn = $fn != 0 ? $fn : Render_Quality;
 include<../test/_test_grid.scad>
 
-_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_envelope()", "square_envelope(aspect=[1, 1])", "square_envelope(aspect=[2, 1])", "square_envelope(aspect=[1, 2])", "square_envelope(expansion=[0, 50])", "square_envelope(expansion=[50, 0])", "square_negative()", "square_frame()", "circle_envelope()", "circle_envelope(expansion=50)", "circle_negative()", "circle_frame()"])
+_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_envelope()", "square_envelope(aspect=[1, 1])", "square_envelope(aspect=[2, 1])", "square_envelope(aspect=[1, 2])", "square_envelope(expansion=[0, 50])", "square_envelope(expansion=[50, 0])", "square_negative()", "square_frame()", "square_vertices()", "circle_envelope()", "circle_envelope(expansion=50)", "circle_negative()", "circle_frame()"])
 {
     _envelope_tools_row_layout([Cell_Size, Cell_Size], Model_File_2D)
     {
@@ -27,6 +27,7 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_
         group() { square_envelope(expansion=[50, 0], model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
         group() { square_negative(model_is_3d=false, iota=Iota, omega=Omega) import (Model_File_2D); %import(Model_File_2D); }
         group() { square_frame(frame=10, model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %import(Model_File_2D); }
+        group() { square_vertices(model_is_3d=false, iota=Iota, omega=Omega) import (Model_File_2D); %import(Model_File_2D); } 
         group() { circle_envelope(model_is_3d=false, iota=Iota) import(Model_File_2D); %import(Model_File_2D); }
         group() { circle_envelope(expansion=50, model_is_3d=false, iota=Iota) import(Model_File_2D); %import(Model_File_2D); }
         group() { circle_negative(model_is_3d=false, iota=Iota) import (Model_File_2D); %import(Model_File_2D); }
@@ -263,6 +264,92 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=u
             children();
         square_envelope(aspect=aspect, expansion=inner_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega) 
             children();
+    }
+}
+
+
+
+// Generates vertex points defining the rectangular envelope around the 
+// underlying geometry.
+// 
+// parameters:
+//  aspect - An optional aspect ratio to enforce on the envelope
+//      if set, the envelope will be resized to the requested ratio
+//      if left undefined, the envelope will wrap the underlying geometry
+//      (defaults to undef)
+//  expansion - the amount to extend the envelope beyond the bounds of the child 
+//      geometry
+//      So, for example, if expansion is set to 2 and a cube of size 20 is
+//      passed in, the envelope will each have dimensions of 24
+//      If this value is negative, the envelope will be smaller than the
+//      dimensions of the child geometry
+//      A single value can be passed for all sides, or a list can be 
+//      used to give different x and y expansion values
+//      (defaults to 0)
+//  frame - an additional frame to add to the envelope
+//      a single value can be passed for all framee, or a list can be 
+//      used to give different x and y frame values
+//      (defaults to 1)
+//  cut - serves the same purpose as the cut option in the projection() function
+//      (defaults to false)
+//  model_is_3d - Used to manually specify whether the children of this module 
+//      are 3-dimensional
+//      WARNING: Setting this incorrectly for the underlying geometry will
+//      break the function
+//      When in doubt, leave it unset
+//      (defaults to undef, which will handle any geometry but will always
+//      display a warning)
+//  iota - a small value used to extrude 2D geometry
+//      (defaults to 0.001)
+//  omega - the largest allowable value
+//      This should not need to be changed unless working with very large 
+//      geometries
+//      (defaults to 9999)
+module square_vertices(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
+{
+    intersection()
+    {
+        union()
+        {
+            // Left beam
+            difference()
+            {
+                for (x_tran = [0, iota])
+                    translate([x_tran, 0])
+                    square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+                    children();
+            }
+
+            // Right beam
+            difference()
+            {
+                for (x_tran = [0, -iota])
+                    translate([x_tran, 0])
+                    square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+                    children();
+            }
+        }
+
+        union()
+        {
+            // bottom beam
+            difference()
+            {
+                for (y_tran = [0, iota])
+                    translate([0, y_tran])
+                    square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+                    children();
+            }
+
+            // top beam
+            difference()
+            {
+                for (y_tran = [0, -iota])
+                    translate([0, y_tran])
+                    square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+                    children();
+            }
+        }
     }
 }
 
