@@ -286,10 +286,7 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=u
 //      A single value can be passed for all sides, or a list can be 
 //      used to give different x and y expansion values
 //      (defaults to 0)
-//  frame - an additional frame to add to the envelope
-//      a single value can be passed for all framee, or a list can be 
-//      used to give different x and y frame values
-//      (defaults to 1)
+//  size - the size (width and height) of each point
 //  cut - serves the same purpose as the cut option in the projection() function
 //      (defaults to false)
 //  model_is_3d - Used to manually specify whether the children of this module 
@@ -305,7 +302,7 @@ module square_frame(aspect=undef, frame=1, expansion=0, cut=false, model_is_3d=u
 //      This should not need to be changed unless working with very large 
 //      geometries
 //      (defaults to 9999)
-module square_vertices(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
+module square_vertices(aspect=undef, expansion=0, size=1, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
     intersection()
     {
@@ -314,7 +311,7 @@ module square_vertices(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
             // Left beam
             difference()
             {
-                for (x_tran = [0, iota])
+                for (x_tran = [0, size])
                     translate([x_tran, 0])
                     square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
                     children();
@@ -323,7 +320,7 @@ module square_vertices(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
             // Right beam
             difference()
             {
-                for (x_tran = [0, -iota])
+                for (x_tran = [0, -size])
                     translate([x_tran, 0])
                     square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
                     children();
@@ -335,7 +332,7 @@ module square_vertices(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
             // bottom beam
             difference()
             {
-                for (y_tran = [0, iota])
+                for (y_tran = [0, size])
                     translate([0, y_tran])
                     square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
                     children();
@@ -344,7 +341,7 @@ module square_vertices(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
             // top beam
             difference()
             {
-                for (y_tran = [0, -iota])
+                for (y_tran = [0, -size])
                     translate([0, y_tran])
                     square_envelope(aspect=aspect, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
                     children();
