@@ -42,7 +42,7 @@ use<axis_projection.scad>
 
 
 // Generate a rectangular envelope surrounding the child geometry
-// An optional aspect can be specified to force the envelope to take a different 
+// An optional aspect can be specified to force the envelope to take a different
 // aspect ratio rather than stricly follow the child geometry
 //
 // parameters:
@@ -50,18 +50,18 @@ use<axis_projection.scad>
 //      if set, the envelope will be resized to the requested ratio
 //      if left undefined, the envelope will wrap the underlying geometry
 //      (defaults to undef)
-//  expansion - the amount to extend the envelope beyond the bounds of the child 
+//  expansion - the amount to extend the envelope beyond the bounds of the child
 //      geometry
 //      So, for example, if expansion is set to 2 and a cube of size 20 is
 //      passed in, the envelope will each have dimensions of 24
 //      If this value is negative, the envelope will be smaller than the
 //      dimensions of the child geometry
-//      A single value can be passed for all sides, or a list can be 
+//      A single value can be passed for all sides, or a list can be
 //      used to give different x and y expansion values
 //      (defaults to 0)
 //  cut - the same as the "cut" parameter in the standard projection module
 //      (defaults to false, same as the standard cut module)
-//  model_is_3d - Used to manually specify whether the children of this module 
+//  model_is_3d - Used to manually specify whether the children of this module
 //      are 3-dimensional
 //      WARNING: Setting this incorrectly for the underlying geometry will
 //      break the function
@@ -71,7 +71,7 @@ use<axis_projection.scad>
 //  iota - a small value used to extrude 2D geometry
 //      (defaults to 0.001)
 //  omega - the largest allowable value
-//      This should not need to be changed unless working with very large 
+//      This should not need to be changed unless working with very large
 //      geometries
 //      (defaults to 9999)
 module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
@@ -88,18 +88,17 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
     x_expansion = is_list(expansion) ? expansion.x : expansion;
     y_expansion = is_list(expansion) ? expansion.y : expansion;
 
-    module generate_axis_projection(local_expansion)
+    module generate_axis_projection(source_axis, local_expansion)
     {
-        // If no aspect is being enforced (aspect is undefined), return the axis 
+        // If no aspect is being enforced (aspect is undefined), return the axis
         // projection as-is
-        if (is_undef(aspect)) 
+        if (is_undef(aspect))
         {
-            axis_projection(axes=[1, 0, 0], expansion=local_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
+            axis_projection(axes=source_axis, expansion=local_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
                 children();
         }
-        
-        // If an aspect is being enforced, project the maximum of the x and y 
-        // axial projections
+       
+        // If an aspect is being enforced, maximum of the x and y axial projections
         else
         {
             maximum_axis_projection(axes=[1, 1, 0], expansion=local_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
@@ -115,27 +114,28 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
             scale([ratio, 1])
                 children();
         }
-        
+       
         // Otherwise, leave the projection as-is
-        else 
+        else
         {
             children();
         }
     }
 
     // Find the intersection of the X and Y envelopes
-    intersection_for(params = 
+    intersection_for(params =
         [
-            [0, x_ratio, x_expansion],
+            [0,  x_ratio, x_expansion],
             [90, y_ratio, y_expansion]
         ])
     {
         z_rot = params[0];
         ratio = params[1];
         expansion = params[2];
+        source_axis = z_rot == 0 ? [1, 0, 0] : [0, 1, 0];
 
         // Rotate the horizontal plane to run along the correct axis
-        rotate([0, 0, -z_rot])
+        rotate([0, 0, z_rot])
             // Project the plane into a 2d surface
             projection()
             // Rotate the vertical plane to run along the y axis
@@ -144,12 +144,9 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
             linear_extrude(omega, center=true)
             // Resize the axis projection to match the requested aspect
             scale_projection(ratio)
-            // Generate an axis projection of the child geometry along the x 
+            // Generate an axis projection of the child geometry along the x
             // axis
-            generate_axis_projection(expansion)
-            // Rotate so the desired axis of the child geometry is laying along 
-            // the x axis
-            rotate([0, 0, z_rot])
+            generate_axis_projection(source_axis, expansion)
             // generate the child geometry
             children();
     }
