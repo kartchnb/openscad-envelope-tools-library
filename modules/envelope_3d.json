@@ -1,0 +1,12 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "Cell_Size": "125",
+            "Iota": "1",
+            "Model_File_3D": "\/mnt\/creations\/3d parts\/church\/temples\/models\/layton utah.stl",
+            "Omega": "9999",
+            "Render_Quality": "32"
+        }
+    }
+}

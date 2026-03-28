@@ -3,6 +3,8 @@
 Cell_Size = 400;
 // The 2D model file
 Model_File_2D = "../test/test.svg";
+// The 3D model file
+Model_File_3D = "../test/test.stl";
 // The value to use for iota
 Iota = 1;
 // The value to use for omega
@@ -32,6 +34,23 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "square_
         group() { circle_envelope(expansion=50, model_is_3d=false, iota=Iota) import(Model_File_2D); %import(Model_File_2D); }
         group() { circle_negative(model_is_3d=false, iota=Iota) import (Model_File_2D); %import(Model_File_2D); }
         group() { circle_frame(frame=10, model_is_3d=false, iota=Iota) import(Model_File_2D); %import(Model_File_2D); }
+    }
+    _envelope_tools_row_layout([Cell_Size, Cell_Size], Model_File_3D)
+    {
+        import(Model_File_3D);
+        group() { square_envelope(model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %import(Model_File_3D); }
+        group() { square_envelope(aspect=[1, 1], model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %import(Model_File_3D); }
+        group() { square_envelope(aspect=[2, 1], model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %import(Model_File_3D); }
+        group() { square_envelope(aspect=[1, 2], model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %import(Model_File_3D); }
+        group() { square_envelope(expansion=[0, 50], model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %import(Model_File_3D); }
+        group() { square_envelope(expansion=[50, 0], model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %import(Model_File_3D); }
+        group() { square_negative(model_is_3d=true, iota=Iota, omega=Omega) import (Model_File_3D); %import(Model_File_3D); }
+        group() { square_frame(frame=10, model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %import(Model_File_3D); }
+        group() { square_vertices(model_is_3d=true, iota=Iota, omega=Omega) import (Model_File_3D); %import(Model_File_3D); } 
+        group() { circle_envelope(model_is_3d=true, iota=Iota) import(Model_File_3D); %import(Model_File_3D); }
+        group() { circle_envelope(expansion=50, model_is_3d=true, iota=Iota) import(Model_File_3D); %import(Model_File_3D); }
+        group() { circle_negative(model_is_3d=true, iota=Iota) import (Model_File_3D); %import(Model_File_3D); }
+        group() { circle_frame(frame=10, model_is_3d=true, iota=Iota) import(Model_File_3D); %import(Model_File_3D); }
     }
 }
 
@@ -77,12 +96,12 @@ use<axis_projection.scad>
 module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
     // Calculate the aspect ratio
-    x_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.x : aspect;
-    y_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.y : aspect;
-    
-    min_dimension = is_undef(aspect) ? undef : min(x_aspect, y_aspect);
-    x_ratio = is_undef(aspect) ? undef : x_aspect / min_dimension;
-    y_ratio = is_undef(aspect) ? undef : y_aspect / min_dimension;
+    x_aspect = is_list(aspect) ? aspect.x : aspect;
+    y_aspect = is_list(aspect) ? aspect.y : aspect;
+
+    min_dimension = is_undef(x_aspect) || is_undef(y_aspect) ? undef : min(x_aspect, y_aspect);
+    x_ratio = is_undef(x_aspect) || is_undef(min_dimension) ? undef : x_aspect / min_dimension;
+    y_ratio = is_undef(y_aspect) || is_undef(min_dimension) ? undef : y_aspect / min_dimension;
 
     // Calculate the expansion to add to the envelope
     x_expansion = is_list(expansion) ? expansion.x : expansion;
@@ -92,7 +111,7 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
     {
         // If no aspect is being enforced (aspect is undefined), return the axis
         // projection as-is
-        if (is_undef(aspect))
+        if (is_undef(x_aspect) || is_undef(y_aspect))
         {
             axis_projection(axes=source_axis, expansion=local_expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
                 children();
@@ -125,27 +144,29 @@ module square_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, 
     // Find the intersection of the X and Y envelopes
     intersection_for(params =
         [
-            [0,  x_ratio, x_expansion],
-            [90, y_ratio, y_expansion]
+            [[1, 0, 0], x_ratio, x_expansion],
+            [[0, 1, 0], y_ratio, y_expansion]
         ])
     {
-        z_rot = params[0];
+        source_axis = params[0];
         ratio = params[1];
         expansion = params[2];
-        source_axis = z_rot == 0 ? [1, 0, 0] : [0, 1, 0];
+        projection_rot = (ratio == undef && source_axis == [0, 1, 0]) ? 90 : 0;
+        final_rot = source_axis == [0, 1, 0] ? -90 : 0;
 
-        // Rotate the horizontal plane to run along the correct axis
-        rotate([0, 0, z_rot])
-            // Project the plane into a 2d surface
+        // Rotate the projection back to run along the original axis
+        rotate([0, 0, final_rot])
+            // Project the cube into the horizontal plane
             projection()
-            // Rotate the vertical plane to run along the y axis
+            // Rotate the vertical cube to run along the y axis
             rotate([90, 0, 0])
-            // Extrude the axial projection up and down into a vertical plane
+            // Extrude the axial projection up and down into thin vertical cube
             linear_extrude(omega, center=true)
             // Resize the axis projection to match the requested aspect
             scale_projection(ratio)
-            // Generate an axis projection of the child geometry along the x
-            // axis
+            // Rotate the projection to run along the x axis
+            rotate([0, 0, projection_rot])
+            // Generate the requested axis projection of the child geometry
             generate_axis_projection(source_axis, expansion)
             // generate the child geometry
             children();

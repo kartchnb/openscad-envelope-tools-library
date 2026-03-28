@@ -1,10 +1,12 @@
 /* [Test Parameters] */
 // The test cell size (width and height)
-Cell_Size = 300;
+Cell_Size = 125;
 // The model file to use
 Model_File_3D = "../test/test.stl";
 // The value to use for iota
 Iota = 1;
+// The value to use for omega
+Omega = 9999;
 // The render quality
 Render_Quality = 32;
 
@@ -15,7 +17,7 @@ include<../test/_test_grid.scad>
 Labels =
 [
     "original", 
-    "prism_resize([50, 50])"
+    "prism_resize([50, 50, 50])"
 ];
 
 _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=Labels, extrusion=1)
@@ -23,7 +25,7 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=Labels, extrusion=1)
     _envelope_tools_row_layout([Cell_Size, Cell_Size], Model_File_3D, extrusion=1)
     {
         import(Model_File_3D);
-        group() {prism_resize([Cell_Size*.75, Cell_Size*.75], model_is_3d=true, iota=Iota) import(Model_File_3D);}
+        group() {prism_resize([25, 50], model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %square([25, 50], center=true);}
     }
 }
 
@@ -63,28 +65,26 @@ use<envelope_3d.scad>
 //      This should not need to be changed unless working with very large 
 //      geometries
 //      (defaults to 9999)
-module prism_resize(size=1, expansion=0, cut=false, model_is_3d=undef, iota=0.001)
+module prism_resize(size=1, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
     width = is_list(size) ? size.x : size;
-    height = is_list(size) ? size.y : size;
+    length = is_list(size) ? size.y : size;
+
+    min_dimension = min(width, length);
+    x_ratio = min_dimension/width;
+    y_ratio = min_dimension/length;
+    z_ratio = 1;
 
     difference()
     {
-        resize([width, height, 0], auto=true)
-        {
-            mirror([0, 0, 1])
-            linear_extrude(iota)
-            for (z_rot = [0, 90])
-            {
-                rotate([0, 0, z_rot])
-                maximum_axis_projection([1, 1, 0], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota)
-                    children();
-            }
-            
+        resize([min_dimension, min_dimension, 0], auto=true)
+            prism_envelope(aspect=[1, 1], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+//            scale([x_ratio, y_ratio, z_ratio])
             children();
-        }
 
-        mirror([0, 0, 1])
-            cube([width*2, height*2, iota*2], center=true);
+        resize([min_dimension, min_dimension, 0], auto=true)
+            prism_negative(aspect=[1, 1], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+//            scale([x_ratio, y_ratio, z_ratio])
+            children();
     }
 }

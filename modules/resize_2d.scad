@@ -3,6 +3,8 @@
 Cell_Size = 75;
 // The model file to use
 Model_File_2D = "../test/test.svg";
+// The model file to use
+Model_File_3D = "../test/test.stl";
 // The value to use for iota
 Iota = 1;
 // The value to use for omega
@@ -36,6 +38,11 @@ _envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=Labels)
         group() {square_resize([10, 50], model_is_3d=false, iota=Iota, omega=Omega) import(Model_File_2D); %square([10, 50], center=true);}
         group() {square_resize([50, 50], model_is_3d=false, iota=Iota, omega=Omega, expansion=20) import(Model_File_2D); %square([50, 50], center=true);}
         group() {circle_resize(d=50, model_is_3d=false, iota=Iota) import(Model_File_2D); %circle(d=50);}
+    }
+    _envelope_tools_row_layout([Cell_Size, Cell_Size], Model_File_3D, extrusion=1)
+    {
+        import(Model_File_3D);
+        group() {square_resize([50, 50], model_is_3d=true, iota=Iota, omega=Omega) import(Model_File_3D); %square([50, 50], center=true);}
     }
 }
 
@@ -81,11 +88,11 @@ module square_resize(size=1, expansion=0, cut=false, model_is_3d=undef, iota=0.0
     difference()
     {
         resize([width, height])
-            square_envelope(aspect=[1, 1], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+            square_envelope(aspect=1, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
             scale([x_ratio, y_ratio])
             children();
         resize([width, height])
-            square_negative(aspect=[1, 1], expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+            square_negative(aspect=1, expansion=expansion, cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
             scale([x_ratio, y_ratio])
             children();
     }

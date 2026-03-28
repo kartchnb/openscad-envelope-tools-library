@@ -14,15 +14,26 @@ Render_Quality = 32;
 $fn = $fn != 0 ? $fn : Render_Quality;
 include<../test/_test_grid.scad>
 
-_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=["original", "prism_envelope()", "prism_negative()", "cylinder_envelope()", "cylinder_negative()"], extrusion=1)
+Labels = 
+[
+    "original", 
+    "prism_envelope()", 
+    "prism_negative()", 
+    "cylinder_envelope()", 
+    "cylinder_negative()",
+    "prism_envelope(aspect=[1, 1])",
+];
+
+_envelope_tools_grid_layout([Cell_Size, Cell_Size], labels=Labels, extrusion=1)
 {
     _envelope_tools_row_layout([Cell_Size, Cell_Size], label=Model_File_3D, extrusion=1)
     {
         import(Model_File_3D);
         group() { prism_envelope(model_is_3d=true) import(Model_File_3D); %import(Model_File_3D); }
-        intersection() { prism_negative(model_is_3d=true) import(Model_File_3D); cube(Omega); }
-        group() { cylinder_envelope(model_is_3d=true) import(Model_File_3D); %import(Model_File_3D); }
-        intersection() { cylinder_negative(model_is_3d=true) import(Model_File_3D); cube(Omega); }
+        intersection() { prism_negative(model_is_3d=true) import(Model_File_3D); translate([0, -Omega/2, 0]) cube(Omega); %import(Model_File_3D); }        group() { cylinder_envelope(model_is_3d=true) import(Model_File_3D); %import(Model_File_3D); }
+        intersection() { cylinder_negative(model_is_3d=true) import(Model_File_3D); translate([0, -Omega/2, 0]) cube(Omega); %import(Model_File_3D); }
+        group() { prism_envelope(aspect=[1,1], model_is_3d=true) import(Model_File_3D); %import(Model_File_3D); }
+        group() { prism_envelope(aspect=[1,2], model_is_3d=true) import(Model_File_3D); %import(Model_File_3D); }
     }
 }
 
@@ -68,14 +79,19 @@ use<envelope_2d.scad>
 module prism_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, iota=0.001, omega=9999)
 {
     // Calculate the aspect ratio
-    x_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.x : aspect;
-    y_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.y : aspect;
-    z_aspect = is_undef(aspect) ? undef : is_list(aspect) ? aspect.z : aspect;
+    x_aspect = is_undef(aspect) ? undef : 
+        is_list(aspect) ? aspect.x : aspect;
+    y_aspect = is_undef(aspect) ? undef : 
+        is_list(aspect) ? aspect.y : aspect;
+    z_aspect = is_undef(aspect) ? undef : 
+        is_list(aspect) ? is_undef(aspect.z) ? undef : aspect.z : aspect;
 
-    min_dimension = is_undef(aspect) ? undef : min(x_aspect, y_aspect, z_aspect);
-    x_ratio = is_undef(aspect) ? undef : x_aspect / min_dimension;
-    y_ratio = is_undef(aspect) ? undef : y_aspect / min_dimension;
-    z_ratio = is_undef(aspect) ? undef : z_aspect / min_dimension;
+    min_dimension = is_undef(x_aspect) || is_undef(y_aspect) ? undef :
+        is_undef(z_aspect) ? min(x_aspect, y_aspect) :
+        min(x_aspect, y_aspect, z_aspect);
+    x_ratio = is_undef(x_aspect) || is_undef(min_dimension) ? undef : x_aspect / min_dimension;
+    y_ratio = is_undef(y_aspect) || is_undef(min_dimension)  ? undef : y_aspect / min_dimension;
+    z_ratio = is_undef(z_aspect) || is_undef(min_dimension)  ? undef : z_aspect / min_dimension;
 
     // Calculate the expansion to add to the envelope
     x_expansion = is_list(expansion) ? expansion.x : expansion;
@@ -85,14 +101,23 @@ module prism_envelope(aspect=undef, expansion=0, cut=false, model_is_3d=undef, i
     intersection()
     {
         linear_extrude(omega, center=true)
-            square_envelope(aspect=aspect, expansion=[x_expansion, y_expansion], cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+            square_envelope(aspect=[x_aspect, y_aspect], expansion=[x_expansion, y_expansion], cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
             children();
 
-        rotate([-90, 0, 0])
-            linear_extrude(omega, center=true)
-            square_envelope(expansion=[x_expansion, z_expansion], cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
-            rotate([90, 0, 0])
-            children();
+        union()
+        {
+            rotate([-90, 0, 00])
+                linear_extrude(omega, center=true)
+                square_envelope(expansion=[x_expansion, y_expansion], cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+                rotate([90, 0, 0])
+                children();
+
+            rotate([0, -90, 00])
+                linear_extrude(omega, center=true)
+                square_envelope(expansion=[x_expansion, y_expansion], cut=cut, model_is_3d=model_is_3d, iota=iota, omega=omega)
+                rotate([0, 90, 0])
+                children();
+        }
     }
 }
 
